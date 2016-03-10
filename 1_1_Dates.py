@@ -115,8 +115,26 @@ class Date:
             return self.day > d2.day
 
     def diff(self, d2):
-        dayDays = d2.days - self.days
+        if(d2.isBefore(self)):
+            start = d2
+            end = self
+        else:
+            start = self
+            end = d2
+        dayDays = end.day - start.day
         monthDays = 0
-        for i in range(self.days, d2.days):
-            monthDays += days[i-1]
-            
+        for i in range(start.month, end.month):
+            monthDays += self.days[i-1]
+        yearDays = 0
+        for i in range(start.year, end.year):
+            yearDays += (366 if Date(1, 1, i).isLeapYear() else 365)
+        total = dayDays + monthDays + yearDays
+        if start.isLeapYear() and start.month<=2:
+            total -= 1
+        if end.isLeapYear() and end.month>=2:
+            total += 1
+        return total * (1 if d2.isAfter(self) else -1)
+
+d1 = Date(3, 15, 2015)
+d2 = Date(4, 15, 2017)
+print d1.diff(d2)
