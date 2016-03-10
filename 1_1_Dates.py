@@ -16,7 +16,7 @@ class Date:
         self.day = day
         self.year = year
         self.days = [31, 28 + self.isLeapYear(), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
+        self.dows = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
 
     # the "printing" function is always named __repr__ !
     def __repr__(self):
@@ -129,12 +129,12 @@ class Date:
         for i in range(start.year, end.year):
             yearDays += (366 if Date(1, 1, i).isLeapYear() else 365)
         total = dayDays + monthDays + yearDays
-        if start.isLeapYear() and start.month<=2:
+        if start.isLeapYear() and start.month>2:
             total -= 1
-        if end.isLeapYear() and end.month>=2:
-            total += 1
         return total * (1 if d2.isAfter(self) else -1)
 
-d1 = Date(3, 15, 2015)
-d2 = Date(4, 15, 2017)
-print d1.diff(d2)
+    def dow(self):
+        return self.dows[Date(3, 6, 2016).diff(self) % 7]
+
+
+print Date(2, 29, 1952).diff(Date(2, 29, 2016))
