@@ -135,6 +135,3 @@ class Date:
 
     def dow(self):
         return self.dows[Date(3, 6, 2016).diff(self) % 7]
-
-
-print Date(2, 29, 1952).diff(Date(2, 29, 2016))
