@@ -135,5 +135,14 @@ class Date:
         return self.dows[Date(3, 6, 2016).diff(self) % 7]
 
 
-d = Date(1, 11, 2011) #tue 1/11/2011
-print d.dow()
+#self-test:
+start = Date(1, 1, 2013)
+test = start.copy()
+i = 0
+while i < 2000:
+    if start.diff(test) != i:
+        print "error"
+        print test
+        break
+    test.tomorrow()
+    i += 1
