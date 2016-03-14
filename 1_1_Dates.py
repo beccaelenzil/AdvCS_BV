@@ -123,15 +123,17 @@ class Date:
             end = d2
         dayDays = end.day - start.day
         monthDays = 0
-        for i in range(start.month, end.month):
-            monthDays += self.days[i-1]
+        for i in range(min(start.month, end.month), max(start.month, end.month)):
+            monthDays += (self.days[i-1] * (1 if start.month<end.month else -1))
         yearDays = 0
         for i in range(start.year, end.year):
-            yearDays += (366 if Date(1, 1, i).isLeapYear() else 365)
+            yearDays += (366 if Date(1, 1, i + (start.month>2)).isLeapYear() else 365)
         total = dayDays + monthDays + yearDays
-        if start.isLeapYear() and start.month>2:
-            total -= 1
         return total * (1 if d2.isAfter(self) else -1)
 
     def dow(self):
         return self.dows[Date(3, 6, 2016).diff(self) % 7]
+
+
+d = Date(1, 11, 2011) #tue 1/11/2011
+print d.dow()
