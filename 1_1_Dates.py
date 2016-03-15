@@ -124,7 +124,7 @@ class Date:
         dayDays = end.day - start.day
         monthDays = 0
         for i in range(min(start.month, end.month), max(start.month, end.month)):
-            monthDays += (self.days[i-1] * (1 if start.month<end.month else -1))
+            monthDays += (Date(1, 1, end.year if start.month<end.month else start.year).days[i-1] * (1 if start.month<end.month else -1))
         yearDays = 0
         for i in range(start.year, end.year):
             yearDays += (366 if Date(1, 1, i + (start.month>2)).isLeapYear() else 365)
@@ -136,13 +136,15 @@ class Date:
 
 
 #self-test:
-start = Date(1, 1, 2013)
+start = Date(12, 31, 2012)
 test = start.copy()
 i = 0
 while i < 2000:
     if start.diff(test) != i:
         print "error"
         print test
+        print start.diff(test)
+        print i
         break
     test.tomorrow()
     i += 1
