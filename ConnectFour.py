@@ -89,15 +89,35 @@ class Board:
         for row in self.data:
             for selection in [row[col:col+4] for col in range(0, self.width-3)]:
                 if abs(sum(selection)) == 4:
-                    return selection[0] > 0
+                    return selection[0] == ox
+        #vert
+        for col in [[self.data[i][j] for i in range(self.height)] for j in range(self.width)]:
+            for selection in [col[idx:idx+4] for idx in range(0, self.height-3)]:
+                if abs(sum(selection)) == 4:
+                    return selection[0] == ox
+        #diag
+        for chunk in [[self.data[x/(self.width-3)+k][x%(self.width-3)+k]\
+                       for k in range(4)] for x in range((self.width-3)*(self.height-3))]:
+            if abs(sum(chunk)) == 4:
+                return chunk[0] == ox
 
+        for chunk in [[self.data[self.height-1-(x/(self.width-3))-k][x%(self.width-3)+k]\
+                       for k in range(4)] for x in range((self.width-3)*(self.height-3))]:
+            if abs(sum(chunk)) == 4:
+                return chunk[0] == ox
+
+        return False
 
 c = Board(7, 6)
-for i in range(5):
-    for j in range(7):
-        c.addMove(j, 1)
+c.addMove(0, 1)
+c.addMove(1, -1)
+c.addMove(1, 1)
+c.addMove(2, -1)
+c.addMove(2, -1)
+c.addMove(2, 1)
+c.addMove(3, -1)
+c.addMove(3, -1)
+c.addMove(3, -1)
+c.addMove(3, 1)
 print c
-print c.topRow(0)
-c.delMove(0)
-c.delMove(2)
-print c
+print c.winsFor(1)
