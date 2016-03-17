@@ -16,6 +16,7 @@ class Board:
         self.height = height
         W = self.width
         H = self.height
+        self.pieces = [" ", "X", "O"]
         self.data = [ [0]*W for row in range(H) ]
 
         # we do not need to return inside a constructor!
@@ -32,7 +33,8 @@ class Board:
         for row in range(0,H):
             s += '|'
             for col in range(0,W):
-                s += str(self.data[row][col]) + '|'
+                s += self.pieces[self.data[row][col]] + '|'
+
             s += '\n'
 
         s += (2*W+1) * '-' + '\n '   # bottom of the board
@@ -108,16 +110,18 @@ class Board:
 
         return False
 
+    def hostGame(self):
+        turn = 1
+        while not (self.winsFor(1) or self.winsFor(-1)):
+            usercol = -1
+            while True:
+                usercol = input(("X" if turn==1 else "O") + ", Choose a column: ")
+                if usercol < 0 or usercol >= self.width or not self.allowsMove(usercol): continue
+                break
+            self.addMove(usercol, turn)
+            print self
+            turn *= -1
+        print ("O" if turn==1 else "X") + " wins!"
+
 c = Board(7, 6)
-c.addMove(0, 1)
-c.addMove(1, -1)
-c.addMove(1, 1)
-c.addMove(2, -1)
-c.addMove(2, -1)
-c.addMove(2, 1)
-c.addMove(3, -1)
-c.addMove(3, -1)
-c.addMove(3, -1)
-c.addMove(3, 1)
-print c
-print c.winsFor(1)
+c.hostGame()
