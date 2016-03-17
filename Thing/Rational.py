@@ -24,3 +24,4 @@ class Rational:
 r = Rational(60, 30)
 r.simplify()
 print r
+

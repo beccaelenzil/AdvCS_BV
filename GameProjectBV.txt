@@ -1,0 +1,10 @@
+Modified Chinese Checkers
+
+Game Play:
+Marbles can either move one spot diagonally to a vacant spot or jump over another marble. If you start jumping, you can keep taking turns until you can’t/don’t want to jump anymore.
+
+Objective of the Game:
+Move all marbles into the other player’s triangle
+
+Modification ideas:
+Invisible “potholes” transport your marble back to your starting triangle, and sneakily and unpredictably change places
