@@ -108,6 +108,9 @@ class Date:
                 self.yesterday()
                 n += 1
 
+    def subNDays(self, n):
+        return self.addNDays(-n)
+
     def isBefore(self, d2):
         """
         Looks at the elements of each date in order of decreasing significance, exiting the function when one element is greater
@@ -138,11 +141,11 @@ class Date:
         if d2.isAfter(self): #if traveling forwards rather than backwards, do this
             while not test.equals(d2): #count and increment test until it equals d2
                 test.tomorrow()
-                counter += 1
+                counter -= 1
         else:
             while not test.equals(d2): #same but decrement counter to account for going backwards
                 test.yesterday()
-                counter -= 1
+                counter += 1
         return counter
 
     #this is the old one that doesn't quite work
@@ -169,19 +172,9 @@ class Date:
         Looks at the difference between self and a 3/6/2016, which is known to be a Sunday. Then gets the remainder when
         divided by 7 to find index of day of week.
         """
-        return self.dows[Date(3, 6, 2016).diff(self) % 7]
+        return self.dows[self.diff(Date(3, 6, 2016)) % 7]
 
 
 #self-test:
-start = Date(12, 31, 2012)
-test = start.copy()
-i = 0
-while i > -10000:
-    if start.diff(test) != i:
-        print "error"
-        print test
-        print start.diff(test)
-        print i
-        break
-    test.yesterday()
-    i -= 1
+print Date(12, 31, 2099).dow()
+print Date(1, 1, 2100).dow()
