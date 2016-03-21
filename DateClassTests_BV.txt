@@ -13,6 +13,10 @@ print "-24 == ", d.diff(d3)
 
 Score: 8/9 (Fix the bugs to earn full credit)
 
+Fixed on Monday 3/21
+
+Score: 9/9
+
 
 --------------------------------------
 date basics
