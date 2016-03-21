@@ -1,0 +1,69 @@
+Here's the output of the tests I ran for your date class.
+A couple items:
+
+- you're missing a subNDays method, please create this.
+- Date(1, 1, 2100) should be Friday night Thursday. Could this be an issue with your diff method? Take a look and see if you can fix this.
+- The sign is reversed on your diff method as evidenced by this test,
+(the difference should be positive if the calling instance is after the argument):
+
+d = Date(3,8,2016)
+d3 = Date(4,1,2016)
+print "24 == ", d3.diff(d)
+print "-24 == ", d.diff(d3)
+
+Score: 8/9 (Fix the bugs to earn full credit)
+
+
+--------------------------------------
+date basics
+--------------------------------------
+11/12/2014 ==  11/12/2014
+11/12/2014 ==  11/12/2014
+d == d2 is False ==  False
+d and d2 have the same date is True ==  True
+
+d's id:  51985344
+d2's id:  51985784
+
+d2 is in a leap year is False ==  False
+
+d3:  01/01/2020
+d3 is in a leap year is True ==  True
+
+
+--------------------------------------
+tomorrow and yesterday test
+--------------------------------------
+12/31/2014 ==  12/31/2014
+1/1/2015 ==  01/01/2015
+1/1/2015 ==  01/01/2015
+12/31/2014 ==  12/31/2014
+02/29/2016 ==  02/29/2016
+3/1/2016 ==  03/01/2016
+02/29/2016 ==  02/29/2016
+
+subNDays and addNDays test
+
+11/12/2014 through 11/15/2014
+
+
+--------------------------------------
+isAfter test
+--------------------------------------
+True ==  True
+False ==  False
+False ==  False
+
+--------------------------------------
+diff test
+--------------------------------------
+24 ==  -24
+-24 ==  24
+105 ==  105
+
+--------------------------------------
+dow test
+--------------------------------------
+Monday ==  Monday
+Monday ==  Monday
+Friday ==  Thursday
