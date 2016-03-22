@@ -76,7 +76,7 @@ class Board:
         for colString in moveString:
             col = int(colString)
             if 0 <= col <= self.width:
-                self.addMove(col, nextCh)
+                self.addMove(col, int(nextCh))
             if nextCh == 1: nextCh = -1
             else: nextCh = 1
 
