@@ -27,7 +27,7 @@ class Hole:
         self.f = f
         self.g = g
         self.marble = marble
-        self.shape = cylinder(pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, 0), axis = (0, 0, .5), radius = 0.35, height = .5, color = color.black)
+        self.shape = cylinder(pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, -.295), axis = (0, 0, .3), radius = 0.35, height = .3, color = color.black)
     def highlight(self, hl):
         if hl:
             self.shape.color = color.yellow
@@ -49,9 +49,9 @@ class Board:
         for startf in range(5):
             loc = (startf, 4)
             for move in self.unitmoves:
-                for n in range(4):
+                for n in range(4 - startf):
                     self.holes.append(Hole(loc[0], loc[1], None))
-                    loc += move
+                    loc = (loc[0] + move[0], loc[1] + move[1])
 
     def hostGame(self):
         i = 0
