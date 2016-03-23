@@ -14,7 +14,7 @@ class Marble:
         self.colors = [color.red, color.orange, color.yellow, color.green, color.blue, color.white]
         self.sphere = sphere(pos = ((g-f)/2.0, (g+f)*math.sqrt(3)/2, 0), radius=0.3, color = self.colors[player])
     def update(self):
-        self.sphere.pos = pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, 0)
+        self.sphere.pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, 0)
     def __repr__(self):
         return "Player " + str(self.player) + "'s marble at (" + str(self.f) + ", " + str(self.g) + ")"
     def __iadd__(self, coord):
@@ -22,6 +22,17 @@ class Marble:
         self.g += coord[1]
         self.update()
 
+class Hole:
+    def __init__(self, f, g, marble):
+        self.f = f
+        self.g = g
+        self.marble = marble
+        self.shape = cylinder(pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, 0), axis = (0, 0, .5), radius = 0.35, height = .5, color = color.black)
+    def highlight(self, hl):
+        if hl:
+            self.shape.color = color.yellow
+        else:
+            self.shape.color = color.black
 class Board:
     def __init__(self, players):
         self.players = players
@@ -32,12 +43,23 @@ class Board:
             for f in range(4):
                 for g in range(4 - f):
                     self.marbles.append(Marble(startPts[p][0] + f * (-1 if p%2==1 else 1), startPts[p][1] + g * (-1 if p%2==1 else 1), p))
+        self.unitmoves = [(0, 1), (1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1)]
+        self.holes = []
+        #make holes
+        for startf in range(5):
+            loc = (startf, 4)
+            for move in self.unitmoves:
+                for n in range(4):
+                    self.holes.append(Hole(loc[0], loc[1], None))
+                    loc += move
+
     def hostGame(self):
-        while(true):
-            print "waiting"
-            scene.kb.getkey()
-            print "got it"
-            self.marbles[9] += (1, 0)
+        i = 0
+        while(True):
+            p = scene.mouse.pick
+            if p != None and p in (self.marbles[x].sphere for x in range(len(self.marbles))):
+                p.color = color.yellow
+            sleep(0.1)
 
 b = Board(6)
 b.hostGame()
