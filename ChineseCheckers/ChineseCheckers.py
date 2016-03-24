@@ -8,6 +8,9 @@ origin at bottom circle
 """
 class Marble:
     def __init__(self, f, g, player):
+        """
+        Add a doc string describing what f and g are at minimum
+        """
         self.f = f
         self.g = g
         self.player = player
@@ -24,6 +27,9 @@ class Marble:
 
 class Hole:
     def __init__(self, f, g, marble):
+        """
+        Add a doc string describing what f and g are at minimum
+        """
         self.f = f
         self.g = g
         self.marble = marble
