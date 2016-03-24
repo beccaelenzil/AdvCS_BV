@@ -46,19 +46,25 @@ class Board:
         self.unitmoves = [(0, 1), (1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1)]
         self.holes = []
         #make holes
-        for startf in range(5):
+        for startf in range(4):
             loc = (startf, 4)
             for move in self.unitmoves:
                 for n in range(4 - startf):
                     self.holes.append(Hole(loc[0], loc[1], None))
                     loc = (loc[0] + move[0], loc[1] + move[1])
+        self.holes.append(Hole(4, 4, None))
 
     def hostGame(self):
-        i = 0
+        prevSelecedShape = None
         while(True):
             p = scene.mouse.pick
-            if p != None and p in (self.marbles[x].sphere for x in range(len(self.marbles))):
-                p.color = color.yellow
+            if prevSelecedShape != p:
+                if prevSelecedShape != None:
+                        prevSelecedShape.color = color.black
+                if p != None and p in (self.holes[x].shape for x in range(len(self.holes))):
+                    p.color = color.yellow
+                    prevSelecedShape = p
+
             sleep(0.1)
 
 b = Board(6)
