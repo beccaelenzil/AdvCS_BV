@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="393a2409-1965-45d0-bacb-da74df2fd845" name="Default" comment="" />
+    <list default="true" id="393a2409-1965-45d0-bacb-da74df2fd845" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ConnectFour.py" afterPath="$PROJECT_DIR$/ConnectFour.py" />
+    </list>
     <ignored path="AdvCS_BV.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -19,6 +22,7 @@
     <SUITE FILE_PATH="coverage/AdvCS_BV$ChineseCheckers.coverage" NAME="ChineseCheckers Coverage Results" MODIFIED="1459142548361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ChineseCheckers" />
     <SUITE FILE_PATH="coverage/AdvCS_BV$RobotsAndZombies.coverage" NAME="RobotsAndZombies Coverage Results" MODIFIED="1459142704379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdvCS_BV$1_1_Dates.coverage" NAME="1_1_Dates Coverage Results" MODIFIED="1458581572115" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdvCS_BV$ConnectFourPlayer.coverage" NAME="ConnectFourPlayer Coverage Results" MODIFIED="1459187170294" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -33,7 +37,22 @@
         <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="70" column="174" selection-start-line="70" selection-start-column="174" selection-end-line="70" selection-end-column="174" />
+              <caret line="76" column="174" selection-start-line="76" selection-start-column="174" selection-end-line="76" selection-end-column="174" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+                <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+                <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+                <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RobotsAndZombies.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="93" column="24" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
               </folding>
@@ -41,13 +60,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RobotsAndZombies.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
+      <file leaf-file-name="ConnectFour.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ConnectFour.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.36325386">
-              <caret line="91" column="22" selection-start-line="91" selection-start-column="22" selection-end-line="91" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="78" column="21" selection-start-line="78" selection-start-column="21" selection-end-line="78" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ConnectFourPlayer.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.6950495">
+              <caret line="60" column="60" selection-start-line="60" selection-start-column="60" selection-end-line="60" selection-end-column="60" />
               <folding>
-                <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#0#13#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -70,9 +99,10 @@
       <list>
         <option value="$PROJECT_DIR$/boxes.py" />
         <option value="$PROJECT_DIR$/1_1_Dates.py" />
-        <option value="$PROJECT_DIR$/ConnectFour.py" />
         <option value="$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py" />
         <option value="$PROJECT_DIR$/RobotsAndZombies.py" />
+        <option value="$PROJECT_DIR$/ConnectFour.py" />
+        <option value="$PROJECT_DIR$/ConnectFourPlayer.py" />
       </list>
     </option>
   </component>
@@ -111,6 +141,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -153,8 +185,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -162,7 +192,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Thing" />
     <property name="js-jscs-nodeInterpreter" value="C:\Program Files (x86)\nodejs\node.exe" />
   </component>
-  <component name="RunManager" selected="Python.RobotsAndZombies">
+  <component name="RunManager" selected="Python.ConnectFourPlayer">
     <configuration default="false" name="1_1_Dates" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -199,24 +229,6 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="boxes" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="AdvCS_BV" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/boxes.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="ChineseCheckers" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -249,6 +261,24 @@
       <module name="AdvCS_BV" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RobotsAndZombies.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ConnectFourPlayer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="AdvCS_BV" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ConnectFourPlayer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -449,17 +479,17 @@
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.1_1_Dates" />
       <item index="1" class="java.lang.String" itemvalue="Python.ConnectFour" />
-      <item index="2" class="java.lang.String" itemvalue="Python.boxes" />
-      <item index="3" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
-      <item index="4" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
+      <item index="2" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
+      <item index="3" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
+      <item index="4" class="java.lang.String" itemvalue="Python.ConnectFourPlayer" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
-        <item index="1" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
-        <item index="2" class="java.lang.String" itemvalue="Python.ConnectFour" />
-        <item index="3" class="java.lang.String" itemvalue="Python.1_1_Dates" />
-        <item index="4" class="java.lang.String" itemvalue="Python.boxes" />
+        <item index="0" class="java.lang.String" itemvalue="Python.ConnectFourPlayer" />
+        <item index="1" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
+        <item index="2" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
+        <item index="3" class="java.lang.String" itemvalue="Python.ConnectFour" />
+        <item index="4" class="java.lang.String" itemvalue="Python.1_1_Dates" />
       </list>
     </recent_temporary>
   </component>
@@ -489,13 +519,13 @@
     <frame x="952" y="0" width="976" height="1038" extended-state="0" />
     <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32964602" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995495" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.7646396" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.10933941" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38654503" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -528,14 +558,17 @@
     <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="70" column="174" selection-start-line="70" selection-start-column="174" selection-end-line="70" selection-end-column="174" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
+    <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -551,6 +584,9 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -561,6 +597,35 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -578,6 +643,9 @@
           <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -595,6 +663,9 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -809,13 +880,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ConnectFour.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.725">
-          <caret line="126" column="0" selection-start-line="126" selection-start-column="0" selection-end-line="126" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/1_1_Dates.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="2.24">
@@ -826,19 +890,40 @@
     <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="70" column="174" selection-start-line="70" selection-start-column="174" selection-end-line="70" selection-end-column="174" />
+          <caret line="76" column="174" selection-start-line="76" selection-start-column="174" selection-end-line="76" selection-end-column="174" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
+            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36325386">
-          <caret line="91" column="22" selection-start-line="91" selection-start-column="22" selection-end-line="91" selection-end-column="22" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="93" column="24" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ConnectFour.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="78" column="21" selection-start-line="78" selection-start-column="21" selection-end-line="78" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6950495">
+          <caret line="60" column="60" selection-start-line="60" selection-start-column="60" selection-end-line="60" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>

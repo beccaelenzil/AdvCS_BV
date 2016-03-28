@@ -122,12 +122,11 @@ class Board:
             print self
             turn *= -1
         print ("O" if turn==1 else "X") + " wins!"
-
+"""
 c = Board(7, 6)
 #c.hostGame()
 
 # Connect Four Tests
-
 print "---------------------------------------------"
 print "print a 7 x 6 board with the columns numbered"
 print "---------------------------------------------\n"
@@ -234,3 +233,4 @@ b.setBoard( '23344545515'  )
 print "if b.setBoard( '23344545515'  ), then b.winsFor('X') should be True == ",b.winsFor('1')
 print "if b.setBoard( '23344545515'  ), then b.winsFor('O') should be False == ",b.winsFor('-1')
 
+"""
