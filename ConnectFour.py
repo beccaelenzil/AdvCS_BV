@@ -122,10 +122,10 @@ class Board:
             print self
             turn *= -1
         print ("O" if turn==1 else "X") + " wins!"
-"""
-c = Board(7, 6)
-#c.hostGame()
 
+#c = Board(7, 6)
+#c.hostGame()
+"""
 # Connect Four Tests
 print "---------------------------------------------"
 print "print a 7 x 6 board with the columns numbered"

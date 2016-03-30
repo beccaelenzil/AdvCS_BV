@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="393a2409-1965-45d0-bacb-da74df2fd845" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py" afterPath="$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ConnectFour.py" afterPath="$PROJECT_DIR$/ConnectFour.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ConnectFourPlayer.py" afterPath="$PROJECT_DIR$/ConnectFourPlayer.py" />
     </list>
     <ignored path="AdvCS_BV.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -17,12 +18,12 @@
   </component>
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/AdvCS_BV$ConnectFour.coverage" NAME="ConnectFour Coverage Results" MODIFIED="1458660428798" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdvCS_BV$ConnectFour.coverage" NAME="ConnectFour Coverage Results" MODIFIED="1459268370333" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdvCS_BV$boxes.coverage" NAME="boxes Coverage Results" MODIFIED="1458057052984" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AdvCS_BV$ChineseCheckers.coverage" NAME="ChineseCheckers Coverage Results" MODIFIED="1459142548361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ChineseCheckers" />
+    <SUITE FILE_PATH="coverage/AdvCS_BV$ChineseCheckers.coverage" NAME="ChineseCheckers Coverage Results" MODIFIED="1459269514484" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ChineseCheckers" />
     <SUITE FILE_PATH="coverage/AdvCS_BV$RobotsAndZombies.coverage" NAME="RobotsAndZombies Coverage Results" MODIFIED="1459142704379" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/AdvCS_BV$1_1_Dates.coverage" NAME="1_1_Dates Coverage Results" MODIFIED="1458581572115" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AdvCS_BV$ConnectFourPlayer.coverage" NAME="ConnectFourPlayer Coverage Results" MODIFIED="1459187170294" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AdvCS_BV$ConnectFourPlayer.coverage" NAME="ConnectFourPlayer Coverage Results" MODIFIED="1459268232844" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -33,50 +34,13 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="ChineseCheckers.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ChineseCheckers.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="76" column="174" selection-start-line="76" selection-start-column="174" selection-end-line="76" selection-end-column="174" />
+            <state vertical-scroll-proportion="0.905691">
+              <caret line="93" column="62" selection-start-line="93" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-                <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RobotsAndZombies.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="93" column="24" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#20#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConnectFour.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ConnectFour.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="78" column="21" selection-start-line="78" selection-start-column="21" selection-end-line="78" selection-end-column="21" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ConnectFourPlayer.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6950495">
-              <caret line="60" column="60" selection-start-line="60" selection-start-column="60" selection-end-line="60" selection-end-column="60" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -99,10 +63,10 @@
       <list>
         <option value="$PROJECT_DIR$/boxes.py" />
         <option value="$PROJECT_DIR$/1_1_Dates.py" />
-        <option value="$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py" />
         <option value="$PROJECT_DIR$/RobotsAndZombies.py" />
         <option value="$PROJECT_DIR$/ConnectFour.py" />
         <option value="$PROJECT_DIR$/ConnectFourPlayer.py" />
+        <option value="$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py" />
       </list>
     </option>
   </component>
@@ -112,9 +76,10 @@
     <detection-done>true</detection-done>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="952" />
-    <option name="width" value="976" />
-    <option name="height" value="1038" />
+    <option name="x" value="-9" />
+    <option name="y" value="-9" />
+    <option name="width" value="1938" />
+    <option name="height" value="1048" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -141,8 +106,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -185,6 +148,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -192,7 +157,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/Thing" />
     <property name="js-jscs-nodeInterpreter" value="C:\Program Files (x86)\nodejs\node.exe" />
   </component>
-  <component name="RunManager" selected="Python.ConnectFourPlayer">
+  <component name="RunManager" selected="Python.ChineseCheckers">
     <configuration default="false" name="1_1_Dates" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -485,10 +450,10 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.ConnectFourPlayer" />
-        <item index="1" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
-        <item index="2" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
-        <item index="3" class="java.lang.String" itemvalue="Python.ConnectFour" />
+        <item index="0" class="java.lang.String" itemvalue="Python.ChineseCheckers" />
+        <item index="1" class="java.lang.String" itemvalue="Python.ConnectFour" />
+        <item index="2" class="java.lang.String" itemvalue="Python.ConnectFourPlayer" />
+        <item index="3" class="java.lang.String" itemvalue="Python.RobotsAndZombies" />
         <item index="4" class="java.lang.String" itemvalue="Python.1_1_Dates" />
       </list>
     </recent_temporary>
@@ -516,18 +481,19 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="952" y="0" width="976" height="1038" extended-state="0" />
-    <editor active="false" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32995495" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295325" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.0" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38654503" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32919955" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32839224" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26944757" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32882884" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32839224" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3997722" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -535,7 +501,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -558,12 +523,47 @@
     <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
+          <caret line="76" column="174" selection-start-line="76" selection-start-column="174" selection-end-line="76" selection-end-column="174" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RobotsAndZombies.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="93" column="24" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ConnectFour.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="78" column="21" selection-start-line="78" selection-start-column="21" selection-end-line="78" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
           <caret line="70" column="174" selection-start-line="70" selection-start-column="174" selection-end-line="70" selection-end-column="174" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -584,9 +584,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -597,9 +594,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -610,9 +604,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -623,9 +614,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -643,9 +631,6 @@
           <caret line="6" column="0" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -663,9 +648,6 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
           </folding>
         </state>
       </provider>
@@ -887,16 +869,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
+    <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="76" column="174" selection-start-line="76" selection-start-column="174" selection-end-line="76" selection-end-column="174" />
+        <state vertical-scroll-proportion="0.733564">
+          <caret line="100" column="0" selection-start-line="100" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
           <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <marker date="1459143234412" expanded="true" signature="34:159" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1459143234412" expanded="true" signature="173:220" placeholder="..." />
-            <marker date="1459143234412" expanded="true" signature="1059:1624" placeholder="..." />
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ConnectFour.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33713356">
+          <caret line="92" column="0" selection-start-line="92" selection-start-column="0" selection-end-line="92" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -910,20 +897,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ConnectFour.py">
+    <entry file="file://$PROJECT_DIR$/ChineseCheckers/ChineseCheckers.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="78" column="21" selection-start-line="78" selection-start-column="21" selection-end-line="78" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ConnectFourPlayer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6950495">
-          <caret line="60" column="60" selection-start-line="60" selection-start-column="60" selection-end-line="60" selection-end-column="60" />
+        <state vertical-scroll-proportion="0.905691">
+          <caret line="93" column="62" selection-start-line="93" selection-start-column="0" selection-end-line="94" selection-end-column="0" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#20#0" expanded="true" />
           </folding>
         </state>
       </provider>

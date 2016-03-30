@@ -74,17 +74,19 @@ class Board:
                 if prevSelectedShape != p:
                     if prevSelectedShape != None:
                             prevSelectedShape.color = prevSelectedColor
-                    if p != None and len([[self.marbles[f][g] for f in range(len(self.marbles))] for g in range(len(self.marbles[0])) if self.marbles[f][g].sphere == p]) > 0:
+                    if p != None and len([x for x in range(len(self.marbles) * len(self.marbles[0]))\
+                                          if self.marbles[x/len(self.marbles)][x%len(self.marbles)] != None and self.marbles[x/len(self.marbles)][x%len(self.marbles)].sphere == p]) > 0:
                         prevSelectedColor = p.color
                         p.color = color.magenta
                         prevSelectedShape = p
                 sleep(0.1)
             obj = scene.mouse.pick
             scene.mouse.getclick()
-            marbles = [self.marbles[x] for x in range(len(self.marbles)) if self.marbles[x].sphere == obj]
-            if len(marbles)==0:
+            themarbles = [self.marbles[x/len(self.marbles)][x%len(self.marbles)] for x in range(len(self.marbles) * len(self.marbles[0]))\
+                                          if self.marbles[x/len(self.marbles)][x%len(self.marbles)] != None and self.marbles[x/len(self.marbles)][x%len(self.marbles)].sphere == obj]
+            if len(themarbles)==0:
                 continue
-            marble = marbles[0]
+            marble = themarbles[0]
             #see if are within 1 unit in both directions, and also check to see if diff is not same for both b/c (-1,-1), (0,0), and (1, 1) aren't legal
             selectables = []
             for x in range(len(self.holes)):
