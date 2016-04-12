@@ -48,13 +48,6 @@ class Hole:
             self.shape = cylinder(pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, -.295), axis = (0, 0, .3), radius = 0.3, height = .3, color = color.black)
         else:
             self.shape = None
-    def highlight(self, hl): #helper func for when cursor hovers over hole
-        if hl:
-            self.shape.color = color.yellow
-        else:
-            self.shape.color = color.black
-    def isEmpty(self):
-        return self.marble == None
     def __repr__(self):
         return "(" + str(self.f) + ", " + str(self.g) + "), " + ("occupied by a " + str(self.marble.sphere.color) + " marble" if self.marble != None else " empty")
 
@@ -100,59 +93,78 @@ class Board:
                     self.holes[(actualF, actualG)] = Hole(actualF, actualG, self.marbles[(actualF, actualG)], False)
 
     def hostGame(self):
-        #so we know what to deselect
+        #to know what to deselect
         prevSelectedShape = None
         prevSelectedColor = None
-        #whose turn is it anyways
+
+        colors = [color.red, color.orange, color.yellow, color.green, color.blue, color.white]
         turn = 0
         while(True):
+            print "turn is " + str(turn)
+            canExit = False
             #wait for click
-            while not scene.mouse.clicked:
+            while not (scene.mouse.clicked and canExit):
+                if scene.mouse.clicked:
+                    scene.mouse.getclick()
                 p = scene.mouse.pick
                 if prevSelectedShape != p: #if the cursor is over a new marble or no longer over one
                     if prevSelectedShape != None: #revert old selection to original color
                         prevSelectedShape.color = prevSelectedColor
-                    if p != None and "sphere" in str(p): #if a marble is selected
+                        canExit = False
+                    if p != None and p.__class__ is sphere and\
+                        abs(p.color[0] - colors[turn][0]) + abs(p.color[1] - colors[turn][1]) + abs(p.color[2] - colors[turn][2]) < .001: #if a marble is selected
                         prevSelectedColor = p.color #backup color to variable
                         p.color = color.magenta #highlight
                         prevSelectedShape = p
+                        canExit = True
                 sleep(0.01) #to allow time to render
-            print "clicked"
             obj = scene.mouse.pick
+            obj.color = prevSelectedColor
             scene.mouse.getclick()
 
-            #here on out in development
-
-            print obj
-            print ""
-
-            themarbles = [self.marbles[key] for key in self.marbles\
-                          if (False if self.marbles[key].isFake else self.marbles[key].sphere == obj)]
-            if len(themarbles)==0:
-                print "not a marble"
-                continue
-            marble = themarbles[0]
+            marble = [self.marbles[key] for key in self.marbles\
+                          if (False if self.marbles[key].isFake else self.marbles[key].sphere == obj)][0]
 
             #see if are within 1 unit in both directions, and also check to see if diff is not same for both b/c (-1,-1), (0,0), and (1, 1) aren't legal
             selectables = []
             for test in self.unitmoves:
-                if (self.holes[(marble.f + test[0], marble.g + test[1])].marble == None if (marble.f + test[0], marble.g + test[1]) in self.holes else False):
+                if self.holes[(marble.f + test[0], marble.g + test[1])].marble == None if (marble.f + test[0], marble.g + test[1]) in self.holes else False:
                     selectables.append(self.holes[(marble.f + test[0], marble.g + test[1])])
+                elif self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])].marble == None if (marble.f + 2*test[0], marble.g + 2*test[1]) in self.holes else False:
+                    selectables.append(self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])])
 
-            for s in selectables:
-                print s
+            shapes = [x.shape for x in selectables]
 
-            """
-            while not scene.mouse.clicked:
+            prevSelectedShape = None
+            canExit = False
+            while not (scene.mouse.clicked and canExit):
+                if scene.mouse.clicked:
+                    scene.mouse.getclick()
                 p = scene.mouse.pick
-                if prevSelectedShape != p: #if the cursor is over a new marble or no longer over one
+                if prevSelectedShape != p: #if the cursor is over a new hole or no longer over one
                     if prevSelectedShape != None: #revert old selection to original color
-                        prevSelectedShape.color = prevSelectedColor
-                    if p != None and "sphere" in str(p): #if a marble is selected
-                        prevSelectedColor = p.color #backup color to variable
-                        p.color = color.magenta #highlight
+                        prevSelectedShape.color = color.black
+                        canExit = False
+                    if p != None and p in shapes:
+                        p.color = color.yellow #highlight
                         prevSelectedShape = p
+                        canExit = True
                 sleep(0.01) #to allow time to render
-            """
+            obj = scene.mouse.pick
+            scene.mouse.getclick()
+            hole = [self.holes[key] for key in self.holes if self.holes[key].shape == obj][0]
+
+            oldHole = [self.holes[key] for key in self.holes if self.holes[key].f == marble.f and self.holes[key].g == marble.g][0]
+            oldHole.shape.color = color.black
+            oldHole.marble = None
+
+            marble.f = hole.f
+            marble.g = hole.g
+            hole.marble = marble
+            hole.shape.color = color.black
+            marble.update()
+
+            turn = (turn + 1) % 6
+
 b = Board(6)
 b.hostGame()
