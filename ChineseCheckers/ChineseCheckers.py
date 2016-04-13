@@ -30,6 +30,7 @@ class Marble:
         self.f += coord[0]
         self.g += coord[1]
         self.update()
+        return self # when you overload a function like iadd, you need to return self.
 
 class Hole:
     def __init__(self, f, g, marble, isFake):
@@ -178,9 +179,11 @@ class Board:
             incs = 100 #fraction of distance to incriment each time
             time = 2 #seconds to take to move
             vel = (1.0*(hole.f-marble.f)/incs, 1.0*(hole.g-marble.g)/incs)
-            print marble
+            #print marble
             for i in range(incs):
                 print marble
+                #marble.f += vel[0] # It worked if put the functionality of iadd right here,
+                #marble.g += vel[1] #so I knew it was an issue with iadd
                 marble += vel
                 sleep(1.0*time/incs)
 
