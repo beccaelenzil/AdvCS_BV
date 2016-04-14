@@ -101,8 +101,10 @@ class Board:
         colors = [color.red, color.orange, color.yellow, color.green, color.blue, color.white]
         turn = 0
         isJumping = False #flag for if player is on a jumping run, if so use same marble
+        scrtext = text(text='', align='center', depth=-0.3, color=color.green, pos = (15, 7, 0))
         while(self.whoWon() == -1):
-            print "turn is " + str(turn)
+            scrtext.text = 'Player ' + str(turn) + "'s turn"
+            scrtext.color = colors[turn]
             canExit = False #make sure that something is selected when user clicks
 
             #----choose a marble------
@@ -155,10 +157,10 @@ class Board:
                     if prevSelectedShape != None: #revert old selection to original color
                         prevSelectedShape.color = color.black
                         canExit = False
-                    if p != None and p in shapes:
-                        p.color = color.yellow #highlight
-                        prevSelectedShape = p
-                        canExit = True
+                if p != None and p in shapes:
+                    p.color = color.yellow #highlight
+                    prevSelectedShape = p
+                    canExit = True
                 sleep(0.01) #to allow time to render
             obj = scene.mouse.pick
             scene.mouse.getclick()
@@ -176,16 +178,18 @@ class Board:
             #marble.update()
 
             #animation sequence -- marble turning to None???
-            incs = 100 #fraction of distance to incriment each time
-            time = 2 #seconds to take to move
-            vel = (1.0*(hole.f-marble.f)/incs, 1.0*(hole.g-marble.g)/incs)
-            #print marble
+            incs = 10 #fraction of distance to incriment each time
+            height = 2 #how far up the ball goes
+            disp = (1.0*(hole.f-marble.f), 1.0*(hole.g-marble.g))
+            vel = ((disp[1]-disp[0])/2.0/incs, (disp[1]+disp[0])*math.sqrt(3)/2/incs, 0)
+            currPos = [(marble.g-marble.f)/2.0, (marble.g+marble.f)*math.sqrt(3)/2]
+            a = -1.0*height/((incs/2)**2) #factor for jump parabola
             for i in range(incs):
-                print marble
-                #marble.f += vel[0] # It worked if put the functionality of iadd right here,
-                #marble.g += vel[1] #so I knew it was an issue with iadd
-                marble += vel
-                sleep(1.0*time/incs)
+                currPos[0] += vel[0]
+                currPos[1] += vel[1]
+                marble.sphere.pos = (currPos[0], currPos[1], a*i*(i-incs))
+                sleep(0.01)
+            marble += disp #formally register the movement
 
             if max([abs(hole.f - oldHole.f), abs(hole.g - oldHole.g)]) == 2: #if it jumped
                 isJumping = True
