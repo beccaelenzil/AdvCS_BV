@@ -31,6 +31,19 @@ class Marble:
         self.g += coord[1]
         self.update()
         return self # when you overload a function like iadd, you need to return self.
+    def move(self, target):
+        incs = 10 #fraction of distance to incriment each time
+        height = 2 #how far up the ball goes
+        disp = (1.0*(target[0]-self.f), 1.0*(target[1]-self.g))
+        vel = ((disp[1]-disp[0])/2.0/incs, (disp[1]+disp[0])*math.sqrt(3)/2/incs, 0)
+        currPos = [(self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2]
+        a = -1.0*height/((incs/2)**2) #factor for jump parabola
+        for i in range(incs):
+            currPos[0] += vel[0]
+            currPos[1] += vel[1]
+            self.sphere.pos = (currPos[0], currPos[1], a*i*(i-incs))
+            sleep(0.01)
+        self += disp #formally register the movement
 
 class Hole:
     def __init__(self, f, g, marble, isFake):
@@ -101,9 +114,11 @@ class Board:
         colors = [color.red, color.orange, color.yellow, color.green, color.blue, color.white]
         turn = 0
         isJumping = False #flag for if player is on a jumping run, if so use same marble
-        scrtext = text(text='', align='center', depth=-0.3, color=color.green, pos = (15, 7, 0))
+        scrtext = label(text='', align='center', pos = (-11, 12, 0))
+        self.exitTurn = False #flag for when user is done with jumping turn
+
         while(self.whoWon() == -1):
-            scrtext.text = 'Player ' + str(turn) + "'s turn"
+            scrtext.text = 'Player ' + str(turn+1) + "'s turn"
             scrtext.color = colors[turn]
             canExit = False #make sure that something is selected when user clicks
 
@@ -137,19 +152,23 @@ class Board:
 
             #see if are within 1 unit in both directions, and also check to see if diff is not same for both b/c (-1,-1), (0,0), and (1, 1) aren't legal
             selectables = []
+            print "---------------------"
             for test in self.unitmoves:
-                if (self.holes[(marble.f + test[0], marble.g + test[1])].marble == None if (marble.f + test[0], marble.g + test[1]) in self.holes else False)\
-                        and not isJumping:
-                    selectables.append(self.holes[(marble.f + test[0], marble.g + test[1])])
-                if self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])].marble == None if (marble.f + 2*test[0], marble.g + 2*test[1]) in self.holes else False:
+                print test
+                if (self.holes[(marble.f + test[0], marble.g + test[1])].marble == None if (marble.f + test[0], marble.g + test[1]) in self.holes else False):
+                    print "---" + str(test)
+                    if not isJumping:
+                        selectables.append(self.holes[(marble.f + test[0], marble.g + test[1])])
+                #if there is a marble one 'test' over, check 2 over
+                elif self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])].marble == None if (marble.f + 2*test[0], marble.g + 2*test[1]) in self.holes else False:
+                    print "---" + str((2*test[0], 2*test[1]))
                     selectables.append(self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])])
-
 
             shapes = [x.shape for x in selectables] #for comparison with selected object
 
             prevSelectedShape = None
             canExit = False
-            while not (scene.mouse.clicked and canExit): #until
+            while not ((scene.mouse.clicked and canExit) or self.exitTurn):
                 if scene.mouse.clicked:
                     scene.mouse.getclick()
                 p = scene.mouse.pick
@@ -162,38 +181,23 @@ class Board:
                     prevSelectedShape = p
                     canExit = True
                 sleep(0.01) #to allow time to render
-            obj = scene.mouse.pick
-            scene.mouse.getclick()
-            hole = [self.holes[key] for key in self.holes if self.holes[key].shape == obj][0]
 
-            oldHole = [self.holes[key] for key in self.holes if self.holes[key].f == marble.f and self.holes[key].g == marble.g][0]
-            oldHole.shape.color = color.black
-            oldHole.marble = None
+            if not self.exitTurn:
+                obj = scene.mouse.pick
+                scene.mouse.getclick()
+                hole = [self.holes[key] for key in self.holes if self.holes[key].shape == obj][0]
+                hole.marble = marble
 
-            #move stuff (old way)
-            #marble.f = hole.f
-            #marble.g = hole.g
-            #hole.marble = marble
-            #hole.shape.color = color.black
-            #marble.update()
+                oldHole = [self.holes[key] for key in self.holes if self.holes[key].f == marble.f and self.holes[key].g == marble.g][0]
+                oldHole.shape.color = color.black
+                oldHole.marble = None
 
-            #animation sequence -- marble turning to None???
-            incs = 10 #fraction of distance to incriment each time
-            height = 2 #how far up the ball goes
-            disp = (1.0*(hole.f-marble.f), 1.0*(hole.g-marble.g))
-            vel = ((disp[1]-disp[0])/2.0/incs, (disp[1]+disp[0])*math.sqrt(3)/2/incs, 0)
-            currPos = [(marble.g-marble.f)/2.0, (marble.g+marble.f)*math.sqrt(3)/2]
-            a = -1.0*height/((incs/2)**2) #factor for jump parabola
-            for i in range(incs):
-                currPos[0] += vel[0]
-                currPos[1] += vel[1]
-                marble.sphere.pos = (currPos[0], currPos[1], a*i*(i-incs))
-                sleep(0.01)
-            marble += disp #formally register the movement
+                marble.move((hole.f, hole.g))
 
-            if max([abs(hole.f - oldHole.f), abs(hole.g - oldHole.g)]) == 2: #if it jumped
-                isJumping = True
-                continue #player gets another turn
+                if max([abs(hole.f - oldHole.f), abs(hole.g - oldHole.g)]) == 2: #if it jumped
+                    isJumping = True
+                    scene.bind('keydown', self.keycb)
+                    continue #player gets another turn
 
             if self.players==2:
                 turn += 3
@@ -203,8 +207,18 @@ class Board:
                 turn += 1
             turn %= 6
 
+            if self.exitTurn:
+                self.exitTurn = False
+                isJumping = False
+                scene.unbind('keydown', self.keycb)
+                scene.waitfor('keyup')
+                oldHole.shape.color = color.black
+
     def whoWon(self):
         return -1
+
+    def keycb(self, evt):
+        self.exitTurn = True
 
 b = Board(2)
 b.hostGame()
