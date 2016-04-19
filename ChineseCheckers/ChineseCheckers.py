@@ -1,6 +1,7 @@
 from visual import *
-from visual_common import primitives
 import math
+import random
+import sys
 
 class Marble:
     def __init__(self, f, g, player, isFake):
@@ -66,8 +67,17 @@ class Hole:
         return "(" + str(self.f) + ", " + str(self.g) + "), " + ("occupied by a " + str(self.marble.sphere.color) + " marble" if self.marble != None else " empty")
 
 class Board:
-    def __init__(self, players):
+    def __init__(self, players, ncPlayers):
         self.players = players #number of players
+        self.ncPlayers = ncPlayers #number of computer players
+
+        if ncPlayers > players:
+            print "too many computer players!!"
+            sys.exit()
+
+        playerSets = [[0, 3], [0, 1, 3, 4], [0, 1, 2, 3, 4, 5]] #the active player #s for 2, 4, and 6 players
+        self.cPlayers = random.sample(playerSets[players/2], ncPlayers) #indices of computer players
+
         #the actual "wood" cylinder that is the board
         self.board = cylinder(pos = (0, 7, -.5), axis = (0, 0, .5), radius = 8, height = .5, material = materials.wood)
 
@@ -78,7 +88,7 @@ class Board:
                 self.marbles[(f, g)] = Marble(f, g, None, True)
 
         #the top/bottom vertices of the triangles that are the initial locations of the marbles
-        startPts = [(0, 0), (8, -1), (9, 0), (8, 8), (0, 9), (-1, 8)]
+        self.startPts = [(0, 0), (8, -1), (9, 0), (8, 8), (0, 9), (-1, 8)]
         #all legal moves of one space, in the form of (deltaF, deltaG)
         self.unitmoves = [(0, 1), (1, 0), (1, -1), (0, -1), (-1, 0), (-1, 1)]
 
@@ -101,10 +111,21 @@ class Board:
         for p in range(6): #create each player's marbles
             for f in range(4): #these nested loops create the triangles of balls around the perimeter
                 for g in range(4 - f):
-                    actualF = startPts[p][0] + f * (-1 if p%2==1 else 1)
-                    actualG = startPts[p][1] + g * (-1 if p%2==1 else 1)
+                    actualF = self.startPts[p][0] + f * (-1 if p%2==1 else 1)
+                    actualG = self.startPts[p][1] + g * (-1 if p%2==1 else 1)
                     self.marbles[(actualF, actualG)] = Marble(actualF, actualG, p, False)
                     self.holes[(actualF, actualG)] = Hole(actualF, actualG, self.marbles[(actualF, actualG)], False)
+
+        #for reference by computer players
+        self.targets = [[]] * 6
+        for p in range(6):
+            for f in range(4): #these nested loops create the triangles of balls around the perimeter
+                for g in range(4 - f):
+                    targetP = (p+3)%6
+                    actualF = self.startPts[targetP][0] + f * (-1 if targetP%2==1 else 1)
+                    actualG = self.startPts[targetP][1] + g * (-1 if targetP%2==1 else 1)
+                    self.targets[p].append(self.cart((actualF, actualG)))
+
 
     def hostGame(self):
         #to know what to deselect
@@ -121,6 +142,19 @@ class Board:
             scrtext.text = 'Player ' + str(turn+1) + "'s turn"
             scrtext.color = colors[turn]
             canExit = False #make sure that something is selected when user clicks
+
+            if turn in self.cPlayers:
+
+                self.computerMove(turn)
+
+                if self.players==2:
+                    turn += 3
+                elif self.players==4:
+                    turn += 1 if turn%3==0 else 2
+                else:
+                    turn += 1
+                turn %= 6
+                continue
 
             #----choose a marble------
 
@@ -152,16 +186,12 @@ class Board:
 
             #see if are within 1 unit in both directions, and also check to see if diff is not same for both b/c (-1,-1), (0,0), and (1, 1) aren't legal
             selectables = []
-            print "---------------------"
             for test in self.unitmoves:
-                print test
                 if (self.holes[(marble.f + test[0], marble.g + test[1])].marble == None if (marble.f + test[0], marble.g + test[1]) in self.holes else False):
-                    print "---" + str(test)
                     if not isJumping:
                         selectables.append(self.holes[(marble.f + test[0], marble.g + test[1])])
                 #if there is a marble one 'test' over, check 2 over
                 elif self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])].marble == None if (marble.f + 2*test[0], marble.g + 2*test[1]) in self.holes else False:
-                    print "---" + str((2*test[0], 2*test[1]))
                     selectables.append(self.holes[(marble.f + 2*test[0], marble.g + 2*test[1])])
 
             shapes = [x.shape for x in selectables] #for comparison with selected object
@@ -185,7 +215,15 @@ class Board:
             if not self.exitTurn:
                 obj = scene.mouse.pick
                 scene.mouse.getclick()
-                hole = [self.holes[key] for key in self.holes if self.holes[key].shape == obj][0]
+                theHoles = [self.holes[key] for key in self.holes if self.holes[key].shape == obj]
+                if len(theHoles) == 0: #weird bug - retry turn
+                    self.exitTurn = False
+                    isJumping = False
+                    scene.unbind('keydown', self.keycb)
+                    scene.waitfor('keyup')
+                    oldHole.shape.color = color.black
+                    continue
+                hole = theHoles[0]
                 hole.marble = marble
 
                 oldHole = [self.holes[key] for key in self.holes if self.holes[key].f == marble.f and self.holes[key].g == marble.g][0]
@@ -202,7 +240,7 @@ class Board:
             if self.players==2:
                 turn += 3
             elif self.players==4:
-                turn += 2 if turn%3==0 else 1
+                turn += 1 if turn%3==0 else 2
             else:
                 turn += 1
             turn %= 6
@@ -215,10 +253,138 @@ class Board:
                 oldHole.shape.color = color.black
 
     def whoWon(self):
+        #for player (p+3)%6
+        for p in range(6):
+            won = True
+            for f in range(4):
+                for g in range(4 - f):
+                    actualF = self.startPts[p][0] + f * (-1 if p%2==1 else 1)
+                    actualG = self.startPts[p][1] + g * (-1 if p%2==1 else 1)
+                    hole = self.holes[(actualF, actualG)]
+                    if (hole.marble.player != ((p+3)%6) if hole.marble != None else True):
+                        won = False
+                        break
+                if not won:
+                    break
+            if won:
+                print str((p+3)%6) + " wins"
+                return (p+3)%6
         return -1
 
     def keycb(self, evt):
         self.exitTurn = True
 
-b = Board(2)
+    def computerMove(self, p):
+        #get marbles
+        pmarbles = []
+        pholes = []
+        for key in self.marbles:
+            if self.marbles[key].player == p:
+                pmarbles.append(self.marbles[key])
+                pholes.append(self.holes[key])
+
+        #start by choosing target hole for each ball, minimizing error
+
+        #make array of squared distance from each marble to each hole
+        d = [[0.0] * 10] * 10
+        for hole in range(10):
+            for marble in range(10):
+                d[hole][marble] = self.sqd(self.cart((pmarbles[marble].f, pmarbles[marble].g)),\
+                                           self.cart((pholes[hole].f, pholes[hole].g)))
+
+        #find most efficient pairing with Hungarian algorithm
+        #step 1 - subtract row minimums
+        for row in range(10):
+            for col in range(10):
+                d[row][col] -= min(d[row])
+        #step 2 - subtract col minimums
+        for row in range(10):
+            for col in range(10):
+                d[row][col] -= min([d[r][col] for r in range(10)])
+
+        #steps 3-5 - make lines
+        rowLines = [False] * 10 #if each row/col has line
+        colLines = [False] * 10
+        rowZeros = [0] * 10 #how many zeros are in each row/col
+        colZeros = [0] * 10
+        while True: #condition appears midway
+            for row in range(10):
+                rowZeros[row] = sum([d[row][col]==0 for col in range(10)])
+            for col in range(10):
+                colZeros[col] = sum([d[row][col]==0 for row in range(10)])
+
+            numZeros = sum(rowZeros) #could be colZeros, just finding how many total
+            while numZeros > 0: #cover all zeros most efficiently
+                idx = (rowZeros + colZeros).index(max(rowZeros + colZeros))
+                if idx < 10: #is a row line
+                    rowLines[idx] = True
+                    rowZeros[idx] = 0   # no uncrossed zeros in this col
+                    for x in range(10): # subtract zeros in this row from col register
+                        if d[row][x] == 0:
+                            rowZeros[x] -= 1
+                else: #a column line
+                    colLines[idx-10] = True
+                    colZeros[idx-10] = 0
+                    for x in range(10):
+                        if d[x][col] == 0:
+                            colZeros[x] -= 1
+                numZeros -= max(rowZeros + colZeros)
+
+            if sum(rowLines + colLines) >= 10: #total number of covering lines
+                break
+
+            #smallest entry not covered by any line
+            lowval = max([max(d[row]) for row in range(10)])
+            for row in range(10):
+                if rowLines[row]:
+                    continue
+                for col in range(10):
+                    if colLines[col]:
+                        continue
+                    if d[row][col] < lowval:
+                        lowval = d[row][col]
+
+            #subtract from each uncovered row
+            for row in range(10): #subtract from each uncovered row
+                if rowLines[row]:
+                    continue
+                for col in range(10):
+                    d[row][col] -= lowval
+            for col in range(10): #add to each covered col
+                if not colLines[col]:
+                    continue
+                for row in range(10):
+                    d[row][col] += lowval
+
+        #get final combos of zeros
+        zerosPerRow = [] * 10
+        for row in range(10):
+            zerosPerRow[row] = sum([1 for x in range(10) if d[row][x]==0])
+        zerosPerCol = [] * 10
+        for col in range(10):
+            zerosPerCol[col] = sum([1 for x in range(10) if d[x][col]==0])
+
+        #find set of 10 zeros unique to cols and rows
+        lens = [0] * 10
+
+    def error(self, marblesPos, p):
+        e = 0.0
+        for i in range(10):
+            e += self.sqd(marblesPos[i], self.targets[p][i])
+        return e
+
+    def cart(self, f, g): #convert to cartesian coords
+        return ((g-f)*.5, (g+f)*math.sqrt(3)/2)
+
+    def sqd(self, a, b): #squared distance between tuples a and b
+        return (a[0]-b[0])**2 + (a[1]-b[1])**2
+
+    def matadd(self, a, c):#add a scalar to a 2d array
+        ret = [[0.0] * len(a[0])] * len(a)
+        for i in range(len(a)):
+            for j in range(len(a[0])):
+                ret[i][j] = a[i][j] + c
+        return ret
+
+b = Board(2, 1)
 b.hostGame()
