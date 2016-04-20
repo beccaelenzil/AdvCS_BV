@@ -2,6 +2,7 @@ from visual import *
 import math
 import random
 import sys
+from munkres import Munkres, print_matrix
 
 class Marble:
     def __init__(self, f, g, player, isFake):
@@ -45,6 +46,8 @@ class Marble:
             self.sphere.pos = (currPos[0], currPos[1], a*i*(i-incs))
             sleep(0.01)
         self += disp #formally register the movement
+    def coord(self):
+        return (self.f, self.g)
 
 class Hole:
     def __init__(self, f, g, marble, isFake):
@@ -63,20 +66,22 @@ class Hole:
             self.shape = cylinder(pos = ((self.g-self.f)/2.0, (self.g+self.f)*math.sqrt(3)/2, -.295), axis = (0, 0, .3), radius = 0.3, height = .3, color = color.black)
         else:
             self.shape = None
+    def coord(self):
+        return (self.f, self.g)
     def __repr__(self):
         return "(" + str(self.f) + ", " + str(self.g) + "), " + ("occupied by a " + str(self.marble.sphere.color) + " marble" if self.marble != None else " empty")
 
 class Board:
     def __init__(self, players, ncPlayers):
-        self.players = players #number of players
+        self.nPlayers = players #number of players
         self.ncPlayers = ncPlayers #number of computer players
 
         if ncPlayers > players:
             print "too many computer players!!"
             sys.exit()
 
-        playerSets = [[0, 3], [0, 1, 3, 4], [0, 1, 2, 3, 4, 5]] #the active player #s for 2, 4, and 6 players
-        self.cPlayers = random.sample(playerSets[players/2], ncPlayers) #indices of computer players
+        self.playerSets = [[0, 3], [0, 1, 3, 4], [0, 1, 2, 3, 4, 5]] #the active player #s for 2, 4, and 6 players
+        self.cPlayers = random.sample(self.playerSets[players/2-1], ncPlayers) #indices of computer players
 
         #the actual "wood" cylinder that is the board
         self.board = cylinder(pos = (0, 7, -.5), axis = (0, 0, .5), radius = 8, height = .5, material = materials.wood)
@@ -139,17 +144,16 @@ class Board:
         self.exitTurn = False #flag for when user is done with jumping turn
 
         while(self.whoWon() == -1):
-            scrtext.text = 'Player ' + str(turn+1) + "'s turn"
+            scrtext.text = 'Player ' + str(self.playerSets[self.nPlayers/2-1].index(turn)+1) + "'s turn" + ('\nPress any key to exit turn' if isJumping else '')
             scrtext.color = colors[turn]
             canExit = False #make sure that something is selected when user clicks
 
-            if turn in self.cPlayers:
-
+            if turn in self.cPlayers: #it is a computer's turn
                 self.computerMove(turn)
 
-                if self.players==2:
+                if self.nPlayers==2:
                     turn += 3
-                elif self.players==4:
+                elif self.nPlayers==4:
                     turn += 1 if turn%3==0 else 2
                 else:
                     turn += 1
@@ -176,7 +180,6 @@ class Board:
                             canExit = True
                     sleep(0.01) #to allow time to render
                 obj = scene.mouse.pick
-                obj.color = prevSelectedColor
                 scene.mouse.getclick()
 
                 marble = [self.marbles[key] for key in self.marbles\
@@ -212,7 +215,7 @@ class Board:
                     canExit = True
                 sleep(0.01) #to allow time to render
 
-            if not self.exitTurn:
+            if not self.exitTurn: #if not exiting turn because of user key during hole select
                 obj = scene.mouse.pick
                 scene.mouse.getclick()
                 theHoles = [self.holes[key] for key in self.holes if self.holes[key].shape == obj]
@@ -237,15 +240,18 @@ class Board:
                     scene.bind('keydown', self.keycb)
                     continue #player gets another turn
 
-            if self.players==2:
+            #only revert if not still jumping
+            marble.sphere.color = colors[marble.player]
+
+            if self.nPlayers==2:
                 turn += 3
-            elif self.players==4:
+            elif self.nPlayers==4:
                 turn += 1 if turn%3==0 else 2
             else:
                 turn += 1
             turn %= 6
 
-            if self.exitTurn:
+            if self.exitTurn: #key triggered
                 self.exitTurn = False
                 isJumping = False
                 scene.unbind('keydown', self.keycb)
@@ -275,106 +281,86 @@ class Board:
         self.exitTurn = True
 
     def computerMove(self, p):
-        #get marbles
+        #get marbles relevant to player
         pmarbles = []
-        pholes = []
         for key in self.marbles:
-            if self.marbles[key].player == p:
+            if self.marbles[key].player == p and not self.marbles[key].sphere == None: #make sure its not fake
                 pmarbles.append(self.marbles[key])
-                pholes.append(self.holes[key])
+
+        marblesPos = [self.cart(m.coord()) for m in pmarbles] #cartesian coord of each marble
 
         #start by choosing target hole for each ball, minimizing error
 
         #make array of squared distance from each marble to each hole
         d = [[0.0] * 10] * 10
-        for hole in range(10):
-            for marble in range(10):
-                d[hole][marble] = self.sqd(self.cart((pmarbles[marble].f, pmarbles[marble].g)),\
-                                           self.cart((pholes[hole].f, pholes[hole].g)))
+        for marble in range(10):
+            for hole in range(10):
+                d[marble][hole] = self.sqd(self.cart(pmarbles[marble].coord()),\
+                                           self.cart(self.targets[p][hole]))
 
-        #find most efficient pairing with Hungarian algorithm
-        #step 1 - subtract row minimums
-        for row in range(10):
-            for col in range(10):
-                d[row][col] -= min(d[row])
-        #step 2 - subtract col minimums
-        for row in range(10):
-            for col in range(10):
-                d[row][col] -= min([d[r][col] for r in range(10)])
+        #assign holes
+        m = Munkres()
+        idxs = m.compute(d)
+        idxs.sort() #sort by marble
+        targets = [self.targets[p][idx[1]] for idx in idxs] #get hole target for each marble, not to be comfused with self.targets
 
-        #steps 3-5 - make lines
-        rowLines = [False] * 10 #if each row/col has line
-        colLines = [False] * 10
-        rowZeros = [0] * 10 #how many zeros are in each row/col
-        colZeros = [0] * 10
-        while True: #condition appears midway
-            for row in range(10):
-                rowZeros[row] = sum([d[row][col]==0 for col in range(10)])
-            for col in range(10):
-                colZeros[col] = sum([d[row][col]==0 for row in range(10)])
+        #test each move for each marble
+        visitedSpaces = [] #to make sure there isn't an infinite loop
+        paths = [[]] * 10 #for each marble, a list of lists of tuples that show the path
+        for marble in range(10):
+            for u in self.unitmoves:
+                coord = (pmarbles[marble].f + u[0], pmarbles[marble].g + u[1])
+                if (self.holes[coord].marble == None if coord in self.holes else False):
+                    paths[marble].append(coord)
+            #recursively check for jumps
+            self.branchMoves(pmarbles[marble], paths[marble], [], visitedSpaces)
 
-            numZeros = sum(rowZeros) #could be colZeros, just finding how many total
-            while numZeros > 0: #cover all zeros most efficiently
-                idx = (rowZeros + colZeros).index(max(rowZeros + colZeros))
-                if idx < 10: #is a row line
-                    rowLines[idx] = True
-                    rowZeros[idx] = 0   # no uncrossed zeros in this col
-                    for x in range(10): # subtract zeros in this row from col register
-                        if d[row][x] == 0:
-                            rowZeros[x] -= 1
-                else: #a column line
-                    colLines[idx-10] = True
-                    colZeros[idx-10] = 0
-                    for x in range(10):
-                        if d[x][col] == 0:
-                            colZeros[x] -= 1
-                numZeros -= max(rowZeros + colZeros)
+        print paths
 
-            if sum(rowLines + colLines) >= 10: #total number of covering lines
-                break
+        lowestError = 10000000 #keep track of current record
+        lowestMarble = 0
+        lowestPath = None
+        for i in range(10): #for each marble
+            bk = marblesPos[i] #to save value before experimenting
+            for path in paths[i]:
+                loc = (sum([x[0] for x in path]) + pmarbles[i].f, sum([x[1] for x in path]) + pmarbles[i].g) #get location in world coords
+                marblesPos[i] = self.cart(loc)
+                e = self.error(marblesPos, targets)
+                if e < lowestError:
+                    lowestError = e
+                    lowestMarble = i
+                    lowestPath = path
+            marblesPos[i] = bk
+        print "Lowest error: " + str(lowestError)
+        #targets in f and g
+        loc = (sum([x[0] for x in lowestPath]) + pmarbles[lowestMarble].f, sum([x[1] for x in lowestPath]) + pmarbles[lowestMarble].g)
+        g = int(round(2*loc[0] + 2*loc[1]/math.sqrt(3)))
+        f = int(round(2*loc[1]/math.sqrt(3) - (2*loc[0] + 2*loc[1]/math.sqrt(3))))
+        print "f = " + str(f) + ", g = " + str(g)
+        pmarbles[lowestMarble].move((f, g))
 
-            #smallest entry not covered by any line
-            lowval = max([max(d[row]) for row in range(10)])
-            for row in range(10):
-                if rowLines[row]:
-                    continue
-                for col in range(10):
-                    if colLines[col]:
-                        continue
-                    if d[row][col] < lowval:
-                        lowval = d[row][col]
-
-            #subtract from each uncovered row
-            for row in range(10): #subtract from each uncovered row
-                if rowLines[row]:
-                    continue
-                for col in range(10):
-                    d[row][col] -= lowval
-            for col in range(10): #add to each covered col
-                if not colLines[col]:
-                    continue
-                for row in range(10):
-                    d[row][col] += lowval
-
-        #get final combos of zeros
-        zerosPerRow = [] * 10
-        for row in range(10):
-            zerosPerRow[row] = sum([1 for x in range(10) if d[row][x]==0])
-        zerosPerCol = [] * 10
-        for col in range(10):
-            zerosPerCol[col] = sum([1 for x in range(10) if d[x][col]==0])
-
-        #find set of 10 zeros unique to cols and rows
-        lens = [0] * 10
-
-    def error(self, marblesPos, p):
+    def error(self, marblesPos, targets):
         e = 0.0
         for i in range(10):
-            e += self.sqd(marblesPos[i], self.targets[p][i])
+            e += self.sqd(marblesPos[i], targets[i])
         return e
 
-    def cart(self, f, g): #convert to cartesian coords
-        return ((g-f)*.5, (g+f)*math.sqrt(3)/2)
+    def branchMoves(self, marble, paths, currPath, visitedSpaces):
+        currLoc = (sum([x[0] for x in currPath]), sum([x[1] for x in currPath])) #location relative to marble based on past path
+        visitedSpaces.append(currLoc) #avoid infinite loops
+        paths.append([currPath]) #register as a valid space to move to
+        for u in self.unitmoves: #check for other spaces surrounding
+            coord1 = (currLoc[0] + u[0], currLoc[1] + u[1]) #one and two units in this direction
+            coord2 = (currLoc[0] + 2*u[0], currLoc[1] + 2*u[1])
+            if not coord2 in visitedSpaces\
+                    and (self.holes[coord2].marble == None if coord2 in self.holes else False)\
+                    and (self.holes[coord1].marble != None if coord1 in self.holes else False): #make sure is unvisited by recursion, empty, and has marble in between
+                currPath.append(coord2)
+                self.branchMoves(marble, currPath, visitedSpaces)
+                del currPath[-1] #delete last element to keep track
+
+    def cart(self, coord):
+        return ((coord[1]-coord[0])*.5, (coord[1]+coord[0])*math.sqrt(3)/2)
 
     def sqd(self, a, b): #squared distance between tuples a and b
         return (a[0]-b[0])**2 + (a[1]-b[1])**2
@@ -386,5 +372,24 @@ class Board:
                 ret[i][j] = a[i][j] + c
         return ret
 
-b = Board(2, 1)
-b.hostGame()
+def getIntInput(string, range):
+    reply = 0
+    valueOk = False
+    while not valueOk:
+        valueOk = True
+        try:
+            reply = int(input(string))
+        except:
+            valueOk = False
+        if not reply in range:
+            valueOk = False
+            print 'Must be one of ' + str(range)
+    return reply
+
+def playGame():
+    players = getIntInput("How many players?", range(2, 7, 2)) #2, 4, or 6 players
+    cPlayers = getIntInput("How many AIs?", range(0, players+1)) #can be 0 to all AI players
+    b = Board(players, cPlayers)
+    b.hostGame()
+
+playGame()
