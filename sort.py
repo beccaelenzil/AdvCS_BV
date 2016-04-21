@@ -34,10 +34,12 @@ def display(list):
     plt.bar(range(len(list)), list)
     plt.draw()
 
-iterations = 0
-for i in range(100):
-    iterations += selectionSort(create_random_list(100))
-iterations /= 100
+#iterations = 0
+#for i in range(100):
+#    iterations += selectionSort(create_random_list(100))
+#iterations /= 100
+
+iterations = selectionSort(range(100))
 
 print "ave iterations: " + str(iterations)
 
