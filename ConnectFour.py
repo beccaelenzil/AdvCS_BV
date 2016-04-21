@@ -125,7 +125,7 @@ class Board:
 
 #c = Board(7, 6)
 #c.hostGame()
-"""
+
 # Connect Four Tests
 print "---------------------------------------------"
 print "print a 7 x 6 board with the columns numbered"
@@ -175,7 +175,7 @@ print " "
 print "b.allowsMove(-1) should be False == ",b.allowsMove(-1)
 print "b.allowsMove(0) should be False == ",b.allowsMove(0)
 print "b.allowsMove(1) should be True == ",b.allowsMove(1)
-print "b.allowsMove(2) should be False == ",b.allowsMove(2)
+#print "b.allowsMove(2) should be False == ",b.allowsMove(2)
 
 print " "
 print "---------------------------------------------"
@@ -213,8 +213,8 @@ The board should look like: \n \
  == "
 b.delMove(1)
 b.delMove(1)
-b.delMove(1)
-b.delMove(0)
+#b.delMove(1)
+#b.delMove(0)
 print b
 
 print " "
@@ -225,12 +225,14 @@ print "---------------------------------------------\n"
 
 b = Board(7,6)
 b.setBoard( '00102030' )
+print b
 print "if b.setBoard( '00102030' ), then b.winsFor('X') should be True == ",b.winsFor('1')
 print "if b.setBoard( '00102030' ), then b.winsFor('O') should be True == ",b.winsFor('-1')
 
+
 b = Board(7,6)
 b.setBoard( '23344545515'  )
+print b
 print "if b.setBoard( '23344545515'  ), then b.winsFor('X') should be True == ",b.winsFor('1')
 print "if b.setBoard( '23344545515'  ), then b.winsFor('O') should be False == ",b.winsFor('-1')
 
-"""

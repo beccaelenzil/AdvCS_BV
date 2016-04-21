@@ -48,6 +48,8 @@ class Marble:
         self += disp #formally register the movement
     def coord(self):
         return (self.f, self.g)
+        return (self.f,self.g) # when you overload a function like iadd, you need to return self.
+
 
 class Hole:
     def __init__(self, f, g, marble, isFake):
@@ -363,7 +365,10 @@ class Board:
                     and (self.holes[coord1].marble != None if coord1 in self.holes else False): #make sure is unvisited by recursion, empty, and has marble in between
                 #print "coord2 is " + str(coord2)
                 currPath.append(coord2)
+<<<<<<< Updated upstream
                 #print currPath
+=======
+>>>>>>> Stashed changes
                 self.branchMoves(marble, paths, currPath, visitedSpaces)
                 del currPath[-1] #delete last element to keep track
 
