@@ -1,6 +1,17 @@
 import matplotlib.pyplot as plt
 import random
 
+def insertionSort(list):
+    iterations = 0
+    for i in range(1, len(list)):
+        for j in range(i, 0, -1):
+            iterations += 1
+            if list[j] < list[j-1]:
+                list[j], list[j-1] = list[j-1], list[j]
+            else:
+                break
+    return iterations
+
 def selectionSort(list):
 <<<<<<< Updated upstream
     iterations = 0
@@ -38,12 +49,10 @@ def display(list):
     plt.bar(range(len(list)), list)
     plt.draw()
 
-#iterations = 0
-#for i in range(100):
-#    iterations += selectionSort(create_random_list(100))
-#iterations /= 100
-
-iterations = selectionSort(range(100))
+iterations = 0
+for i in range(100):
+    iterations += insertionSort(create_random_list(100))
+iterations /= 100
 
 print "ave iterations: " + str(iterations)
 

@@ -315,13 +315,12 @@ class Board:
             for u in self.unitmoves:
                 coord = (pmarbles[marble].f + u[0], pmarbles[marble].g + u[1])
                 if (self.holes[coord].marble == None if coord in self.holes else False):
-                    paths[marble].append([coord])
+                    paths[marble].append([pmarbles[marble].coord(), coord])
             #recursively check for jumps
             #print "Branching marble " + str(marble)
             self.branchMoves(pmarbles[marble], paths[marble], [pmarbles[marble].coord()], visitedSpaces)
 
         lowestError = 10000000 #keep track of current record
-        lowestMarble = 0
         lowestPath = None
         for i in range(10): #for each marble
             bk = marblesPos[i] #to save value before experimenting
@@ -331,18 +330,17 @@ class Board:
                 e = self.error(marblesPos, targets)
                 if e < lowestError:
                     lowestError = e
-                    lowestMarble = i
                     lowestPath = path
             marblesPos[i] = bk
         print "Lowest error: " + str(lowestError)
         print "Lowest path: " + str(lowestPath)
-        print "Lowest marble: " + str(pmarbles[lowestMarble]) + ", index is " + str(lowestMarble)
-        print paths[lowestMarble]
+        theMarble = [m for m in pmarbles if m.coord() == lowestPath[0]][0] #find marble referenced in path
+        del lowestPath[0] #get rid of now redundant marble position
         #targets in f and g
         loc = lowestPath[-1]
         print "final move: " + str(loc)
         for move in lowestPath:
-            pmarbles[lowestMarble].move(move)
+            theMarble.move(move)
 
     def error(self, marblesPos, targets):
         e = 0.0
@@ -352,10 +350,14 @@ class Board:
 
     def branchMoves(self, marble, paths, currPath, visitedSpaces):
         currLoc = currPath[-1] #world coords
-        #print "currLoc is " + str(currLoc)
+        #print "marble " + str(marble) + ", currloc is " + str(currLoc)
         visitedSpaces.append(currLoc) #avoid infinite loops
         #print currPath
-        paths.append([x for x in currPath]) #register as a valid space to move to (mutability fix?)
+        #if len(currPath) > 1: #if not just marble pos
+        #    paths.append([x for x in currPath]) #register as a valid space to move to (mutability fix?)
+        if len(currPath) > 1:
+            paths.append(currPath)
+        #print currPath
         #print paths
         for u in self.unitmoves: #check for other spaces surrounding
             coord1 = (currLoc[0] + u[0], currLoc[1] + u[1]) #one and two units in this direction, relative to marble
@@ -363,6 +365,7 @@ class Board:
             if not coord2 in visitedSpaces\
                     and (self.holes[coord2].marble == None if coord2 in self.holes else False)\
                     and (self.holes[coord1].marble != None if coord1 in self.holes else False): #make sure is unvisited by recursion, empty, and has marble in between
+                #print coord2
                 #print "coord2 is " + str(coord2)
                 currPath.append(coord2)
 <<<<<<< Updated upstream
