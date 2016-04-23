@@ -48,8 +48,6 @@ class Marble:
         self += disp #formally register the movement
     def coord(self):
         return (self.f, self.g)
-        return (self.f,self.g) # when you overload a function like iadd, you need to return self.
-
 
 class Hole:
     def __init__(self, f, g, marble, isFake):
@@ -83,7 +81,7 @@ class Board:
             sys.exit()
 
         self.playerSets = [[0, 3], [0, 1, 3, 4], [0, 1, 2, 3, 4, 5]] #the active player #s for 2, 4, and 6 players
-        self.cPlayers = [3]#random.sample(self.playerSets[players/2-1], ncPlayers) #indices of computer players
+        self.cPlayers = random.sample(self.playerSets[players/2-1], ncPlayers) #indices of computer players
 
         #the actual "wood" cylinder that is the board
         self.board = cylinder(pos = (0, 7, -.5), axis = (0, 0, .5), radius = 8, height = .5, material = materials.wood)
@@ -115,6 +113,7 @@ class Board:
                     loc = (loc[0] + move[0], loc[1] + move[1]) #move to next hole position
         self.holes[(4, 4)] = Hole(4, 4, None, False) #this is the special case of the center hole that the loop doesn't cover
 
+        self.targets = [[] for i in range(6)] #target locations for each player (LC is mutability bug fix)
         for p in range(6): #create each player's marbles
             for f in range(4): #these nested loops create the triangles of balls around the perimeter
                 for g in range(4 - f):
@@ -122,17 +121,7 @@ class Board:
                     actualG = self.startPts[p][1] + g * (-1 if p%2==1 else 1)
                     self.marbles[(actualF, actualG)] = Marble(actualF, actualG, p, False)
                     self.holes[(actualF, actualG)] = Hole(actualF, actualG, self.marbles[(actualF, actualG)], False)
-
-        #for reference by computer players
-        self.targets = [[]] * 6
-        for p in range(6):
-            for f in range(4): #these nested loops create the triangles of balls around the perimeter
-                for g in range(4 - f):
-                    targetP = (p+3)%6
-                    actualF = self.startPts[targetP][0] + f * (-1 if targetP%2==1 else 1)
-                    actualG = self.startPts[targetP][1] + g * (-1 if targetP%2==1 else 1)
-                    self.targets[p].append((actualF, actualG))
-
+                    self.targets[(p+3)%6].append((actualF, actualG)) #for opposite player
 
     def hostGame(self):
         #to know what to deselect
@@ -260,6 +249,8 @@ class Board:
                 scene.waitfor('keyup')
                 oldHole.shape.color = color.black
 
+        scrtext.text = "Player " + str(self.playerSets[self.nPlayers].index(self.whoWon())+1) + " wins!"
+
     def whoWon(self):
         #for player (p+3)%6
         for p in range(6):
@@ -291,56 +282,48 @@ class Board:
 
         marblesPos = [self.cart(m.coord()) for m in pmarbles] #cartesian coord of each marble
 
-        #start by choosing target hole for each ball, minimizing error
+        targets = [(9, 9)] * 10 if p==0 else [(-1, -1)] * 10
 
-        #make array of squared distance from each marble to each hole
-        d = [[0.0] * 10] * 10
-        for marble in range(10):
-            for hole in range(10):
-                d[marble][hole] = self.sqd(self.cart(pmarbles[marble].coord()),\
-                                           self.cart(self.targets[p][hole]))
-
-        #assign holes
-        m = Munkres()
-        idxs = m.compute(d)
-        idxs.sort() #sort by marble
-        targets = [self.targets[p][idx[1]] for idx in idxs] #get hole target for each marble, not to be comfused with self.targets
-
-        print self.error(marblesPos, targets)
+        print "-------------------"
+        print "current error: " + str(self.error(marblesPos, targets))
 
         #test each move for each marble
-        visitedSpaces = [] #to make sure there isn't an infinite loop
-        paths = [[]] * 10 #for each marble, a list of lists of tuples that show the path
+        paths = []
         for marble in range(10):
             for u in self.unitmoves:
                 coord = (pmarbles[marble].f + u[0], pmarbles[marble].g + u[1])
                 if (self.holes[coord].marble == None if coord in self.holes else False):
-                    paths[marble].append([pmarbles[marble].coord(), coord])
+                    paths.append([pmarbles[marble].coord(), coord])
             #recursively check for jumps
             #print "Branching marble " + str(marble)
-            self.branchMoves(pmarbles[marble], paths[marble], [pmarbles[marble].coord()], visitedSpaces)
+            self.branchMoves(paths, [pmarbles[marble].coord()], [])
 
         lowestError = 10000000 #keep track of current record
         lowestPath = None
-        for i in range(10): #for each marble
-            bk = marblesPos[i] #to save value before experimenting
-            for path in paths[i]:
-                loc = path[-1]#(sum([x[0] for x in path]) + pmarbles[i].f, sum([x[1] for x in path]) + pmarbles[i].g) #get location in world coords
-                marblesPos[i] = self.cart(loc)
-                e = self.error(marblesPos, targets)
-                if e < lowestError:
-                    lowestError = e
-                    lowestPath = path
-            marblesPos[i] = bk
+        for path in paths:
+            marbleIdx = [x for x in range(10) if pmarbles[x].coord()==path[0]][0]
+            loc = path[-1]
+            bk = marblesPos[marbleIdx]
+            marblesPos[marbleIdx] = self.cart(loc)
+            e = self.error(marblesPos, targets)
+            if e < lowestError:
+                lowestError = e
+                lowestPath = path
+            marblesPos[marbleIdx] = bk
         print "Lowest error: " + str(lowestError)
         print "Lowest path: " + str(lowestPath)
-        theMarble = [m for m in pmarbles if m.coord() == lowestPath[0]][0] #find marble referenced in path
+        theMarble = [m for m in pmarbles if m.coord() == lowestPath[0]][0]
         del lowestPath[0] #get rid of now redundant marble position
+
         #targets in f and g
-        loc = lowestPath[-1]
+        loc = lowestPath[-1] #last element of path
         print "final move: " + str(loc)
+
+        self.holes[theMarble.coord()].marble = None
         for move in lowestPath:
             theMarble.move(move)
+            sleep(0.2)
+        self.holes[loc].marble = theMarble #register hole as full
 
     def error(self, marblesPos, targets):
         e = 0.0
@@ -348,31 +331,21 @@ class Board:
             e += self.sqd(marblesPos[i], targets[i])
         return e
 
-    def branchMoves(self, marble, paths, currPath, visitedSpaces):
-        currLoc = currPath[-1] #world coords
+    def branchMoves(self, paths, currPath, visitedSpaces):
+        currLoc = currPath[-1] #most recent entry on path, in world coords
         #print "marble " + str(marble) + ", currloc is " + str(currLoc)
         visitedSpaces.append(currLoc) #avoid infinite loops
         #print currPath
-        #if len(currPath) > 1: #if not just marble pos
-        #    paths.append([x for x in currPath]) #register as a valid space to move to (mutability fix?)
-        if len(currPath) > 1:
-            paths.append(currPath)
-        #print currPath
-        #print paths
+        if len(currPath) > 1: #if a valid path, not just start position
+            paths.append([x for x in currPath]) #mutability problem fix
         for u in self.unitmoves: #check for other spaces surrounding
-            coord1 = (currLoc[0] + u[0], currLoc[1] + u[1]) #one and two units in this direction, relative to marble
+            coord1 = (currLoc[0] + u[0], currLoc[1] + u[1]) #one and two units in this direction
             coord2 = (currLoc[0] + 2*u[0], currLoc[1] + 2*u[1])
             if not coord2 in visitedSpaces\
                     and (self.holes[coord2].marble == None if coord2 in self.holes else False)\
                     and (self.holes[coord1].marble != None if coord1 in self.holes else False): #make sure is unvisited by recursion, empty, and has marble in between
-                #print coord2
-                #print "coord2 is " + str(coord2)
                 currPath.append(coord2)
-<<<<<<< Updated upstream
-                #print currPath
-=======
->>>>>>> Stashed changes
-                self.branchMoves(marble, paths, currPath, visitedSpaces)
+                self.branchMoves(paths, currPath, visitedSpaces)
                 del currPath[-1] #delete last element to keep track
 
     def cart(self, coord):
@@ -388,13 +361,13 @@ class Board:
                 ret[i][j] = a[i][j] + c
         return ret
 
-def getIntInput(string, range):
+def getIntInput(prompt, range): #range is list of acceptable entries
     reply = 0
     valueOk = False
     while not valueOk:
         valueOk = True
         try:
-            reply = int(input(string))
+            reply = int(input(prompt))
         except:
             valueOk = False
         if not reply in range:
@@ -403,9 +376,9 @@ def getIntInput(string, range):
     return reply
 
 def playGame():
-    #players = getIntInput("How many players?", range(2, 7, 2)) #2, 4, or 6 players
-    #cPlayers = getIntInput("How many AIs?", range(0, players+1)) #can be 0 to all AI players
-    b = Board(2, 1)
+    players = getIntInput("How many players?", range(2, 7, 2)) #2, 4, or 6 players
+    cPlayers = getIntInput("How many AIs?", range(0, players+1)) #can be 0 to all AI players
+    b = Board(players, cPlayers)
     b.hostGame()
 
 playGame()
