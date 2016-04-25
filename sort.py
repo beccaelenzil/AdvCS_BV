@@ -13,11 +13,8 @@ def insertionSort(list):
     return iterations
 
 def selectionSort(list):
-<<<<<<< Updated upstream
-    iterations = 0
-=======
     #iterate through which value to start at
->>>>>>> Stashed changes
+    iterations = 0
     for start in range(len(list)):
         lidx = start #lowest value index
         for el in range(start+1, len(list)):

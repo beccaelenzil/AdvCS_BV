@@ -323,8 +323,8 @@ class Board: #class that contains variables and functions for board state and ga
 
         #check to see if only 1 marble left, in that case target the last hole
         lastHole = None
-        remainingMarbles = [marble for marble in pmarbles] #keep tally of which marble has yet to be placed
         lastMarble = None
+        remainingMarbles = [m for m in pmarbles] #to keep tally of which marbles are accounted for
         doexit = False
         for f in range(4): #relative coordinates in target triangle to check
             for g in range(4 - f):
@@ -338,18 +338,19 @@ class Board: #class that contains variables and functions for board state and ga
                         doexit = True
                         break
                     lastHole = hole
-                else:
-                    remainingMarbles.remove(hole.marble)
             if doexit:
                 break
-        if lastHole != None: #if only 1 to go, make hole pos the target
+
+        print "-------------------"
+
+        if lastHole != None: #if only 1 marble left to get in place, make last empty hole position the target
             print "FINAL MARBLE!!!!"
             print remainingMarbles
-            target = hole.coord()
+            target = lastHole.coord()
+            print target
             lastMarble = remainingMarbles[0]
 
         #print information on current error
-        print "-------------------"
         print "current error: " + str(self.error(marblesPos, target))
 
         #compile paths, an array of turns the player could take
@@ -365,9 +366,8 @@ class Board: #class that contains variables and functions for board state and ga
             #Third param is list of already visited spots, to avoid infinite loops
             self.branchMoves(paths, [pmarbles[marble].coord()], [])
 
-        #startE = self.error(marblesPos, target) #for old local minimum method
         lowestError = 10000000 #keep track of current record (initialized arbitrarily high)
-        lowestPath = None #the best one so far
+        lowestPath = random.choice([path for path in paths if len(path)==2]) #set a default random choice in case its stuck
         for path in paths: #check each one
             #if only one marble left to palce, skip all other marbles (local minimum avoision)
             if (False if lastHole==None else lastMarble.coord() != path[0]): #if only 1 marble to go, so only make paths for this marble
@@ -383,21 +383,7 @@ class Board: #class that contains variables and functions for board state and ga
             marblesPos[marbleIdx] = bk #revert to old valeu
         print "lowest error: " + str(lowestError) #print results
         print "lowest path: " + str(lowestPath)
-        #Old local minimum method
-        #if lowestError > startE: #moving against negative gradient, stuck in local minimum
-        #    #make a random move
-        #    print "hit local minimum, picking random short move in general direction."
-        #
-        #    options = [path for path in paths if len(path) == 2\
-        #               and self.unitmoves.index((path[1][0] - path[0][0], path[1][1] - path[0][1]))\
-        #               in (range(6) * 2)[9-p:11-p]] #only short paths, 2 moves max, in general direction
-        #    if len(options) == 0: #look for move parallel to triangle border if necessary
-        #        options = [path for path in paths if len(path) == 2\
-        #                                and self.unitmoves.index((path[1][0] - path[0][0], path[1][1] - path[0][1]))\
-        #                                in (range(6)*2)[8-p:12-p]] #only short paths, 2 moves max, in general direction or horizontal
-        #    if len(options) == 0: #still nothing
-        #        options = [path for path in paths if len(path) == 2]
-        #    lowestPath = random.choice(options)
+
         theMarble = [m for m in pmarbles if m.coord() == lowestPath[0]][0] #get the marble to move
         del lowestPath[0] #get rid of now redundant marble position
 
