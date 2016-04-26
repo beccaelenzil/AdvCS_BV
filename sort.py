@@ -1,14 +1,25 @@
 import matplotlib.pyplot as plt
 import random
+def mergeSort(list):
+    if len(list) <= 1:
+        return
+    lista = list[:len(list)/2]
+    listb = list[len(list)/2:]
+    mergeSort(lista)
+    mergeSort(listb)
+    idxs = [0, 0] #keep track
+    newList = [((lista.pop(0) if lista[0] < listb[0] else listb.pop(0)) if (len(lista) > 0 and len(listb) > 0) else (lista if len(lista)>0 else listb).pop(0)) for i in range(len(list))]
+    for i in range(len(list)):
+        list[i] = newList[i]
 
-def quickSort(list, start = 0, stop = -1):
-    if stop == -1: #if defaulted
+def quickSort(list, start = 0, stop = -10):
+    if stop == -10: #if default value, initialize stop
         stop = len(list)-1
     if stop-start < 1:
         return
     left = start
     right = stop
-    pivot = list[0]
+    pivot = list[start]
     while left < right:
         while list[left] < pivot:
             left += 1
@@ -18,7 +29,6 @@ def quickSort(list, start = 0, stop = -1):
             list[left], list[right] = list[right], list[left]
             left += 1
             right -= 1
-            print list
     quickSort(list, start, right)
     quickSort(list, left, stop)
 
@@ -67,8 +77,9 @@ def display(list):
     plt.bar(range(len(list)), list)
     plt.draw()
 
-list = [39, 30, 45, 55, 20, 61, 36, 5, 31, 64]
-quickSort(list)
+list = random.sample(range(100), 100)
+print list
+mergeSort(list)
 print list
 
 #iterations = 0
