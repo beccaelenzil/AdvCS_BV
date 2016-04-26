@@ -340,6 +340,8 @@ class Board: #class that contains variables and functions for board state and ga
                         doexit = True
                         break
                     lastHole = hole
+                if (hole.marble.player == p if hole.marble != None else False): #if occupied by this player
+                    remainingMarbles.remove(hole.marble)
             if doexit:
                 break
 
