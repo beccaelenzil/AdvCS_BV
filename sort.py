@@ -1,6 +1,27 @@
 import matplotlib.pyplot as plt
 import random
 
+def quickSort(list, start = 0, stop = -1):
+    if stop == -1: #if defaulted
+        stop = len(list)-1
+    if stop-start < 1:
+        return
+    left = start
+    right = stop
+    pivot = list[0]
+    while left < right:
+        while list[left] < pivot:
+            left += 1
+        while list[right] > pivot:
+            right -= 1
+        if left <= right:
+            list[left], list[right] = list[right], list[left]
+            left += 1
+            right -= 1
+            print list
+    quickSort(list, start, right)
+    quickSort(list, left, stop)
+
 def insertionSort(list):
     iterations = 0
     for i in range(1, len(list)):
@@ -46,11 +67,15 @@ def display(list):
     plt.bar(range(len(list)), list)
     plt.draw()
 
-iterations = 0
-for i in range(100):
-    iterations += insertionSort(create_random_list(100))
-iterations /= 100
+list = [39, 30, 45, 55, 20, 61, 36, 5, 31, 64]
+quickSort(list)
+print list
 
-print "ave iterations: " + str(iterations)
+#iterations = 0
+#for i in range(100):
+#    iterations += insertionSort(create_random_list(100))
+#iterations /= 100
 
-plt.pause(1000)
+#print "ave iterations: " + str(iterations)
+
+#plt.pause(1000)

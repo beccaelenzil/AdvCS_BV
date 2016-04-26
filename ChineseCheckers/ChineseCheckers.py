@@ -177,6 +177,7 @@ class Board: #class that contains variables and functions for board state and ga
                     if prevSelectedShape != p: #if the cursor is over a new object or no longer over one
                         if prevSelectedShape != None: #revert old selection to original color
                             prevSelectedShape.color = prevSelectedColor
+                            prevSelectedShape = None
                             canExit = False #nothing selected anymore, so can't exit
                         #if the selected object is a sphere, and belongs to this player
                         if p != None and p.__class__ is sphere and\
@@ -222,6 +223,7 @@ class Board: #class that contains variables and functions for board state and ga
                 if prevSelectedShape != p: #if the cursor is over a new hole or no longer over one
                     if prevSelectedShape != None: #revert old selection to original color
                         prevSelectedShape.color = color.black
+                        prevSelectedShape = None
                         canExit = False
                 if p != None and p in shapes: #if selected hole is legal move
                     p.color = color.yellow #highlight
@@ -347,7 +349,6 @@ class Board: #class that contains variables and functions for board state and ga
             print "FINAL MARBLE!!!!"
             print remainingMarbles
             target = lastHole.coord()
-            print target
             lastMarble = remainingMarbles[0]
 
         #print information on current error
