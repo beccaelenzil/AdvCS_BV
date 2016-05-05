@@ -12,8 +12,16 @@ class Queue:
     def size(self):
         return len(self.array)
 
-q = Queue()
-q.enqueue("hi")
-q.enqueue("there")
-print q.dequeue()
-print q.dequeue()
+def hotPotato(namelist, num):
+    q = Queue()
+    for name in namelist:
+        q.enqueue(name)
+
+    while q.size() > 1:
+        for i in range(num):
+            q.enqueue(q.dequeue())
+        q.dequeue()
+
+    print str(q.array[0]) + " wins"
+
+hotPotato(["Bill","David","Susan","Jane","Kent","Brad"], 7)

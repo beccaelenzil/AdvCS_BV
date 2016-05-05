@@ -17,16 +17,16 @@ class Stack:
         return len(self.array)
 
 def parenChecker(parenString):
-    s = Stack()
-    for p in parenString:
-        if p == '(':
-            s.push(p)
-        elif p == ')':
-            if s.isEmpty():
+    s = Stack() #create the stack
+    for p in parenString: #iterate thru characters
+        if p == '(': #if this is opening paren
+            s.push(p) #add this char to the array
+        elif p == ')': #if closing
+            if s.isEmpty(): #if no openers left, then not balanced
                 return False
-            else:
+            else: #close off this parenthesis
                 s.pop()
-    return s.isEmpty()
+    return s.isEmpty() #check if is balanced
 
 def balancedSymbols(str):
     s = Stack()
@@ -45,6 +45,11 @@ def dToB(n):
     [s.push(str(thing%2)) for thing in [n/(2**x) for x in range(int(math.log(max(n, 1), 2)) + 1)]]
     return "".join(s.array.__reversed__())
 
+def dToBase(n, base):
+    s = Stack()
+    [s.push(str(thing%base)) for thing in [n/(base**x) for x in range(int(math.log(max(n, 1), base)) + 1)]]
+    return "".join(s.array.__reversed__())
+
 def parenCheckerSansStacks(list):
     ctr = 0
     for ch in list:
@@ -53,4 +58,4 @@ def parenCheckerSansStacks(list):
             return False
     return ctr==0
 
-print dToB(237)
+print dToBase(110, 11)
