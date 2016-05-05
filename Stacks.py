@@ -42,7 +42,7 @@ def balancedSymbols(str):
 
 def dToB(n):
     s = Stack()
-    [s.push(str(thing%2)) for thing in [n/(2**x) for x in range(int(math.ceil(math.log(n, 2))))]]
+    [s.push(str(thing%2)) for thing in [n/(2**x) for x in range(int(math.log(max(n, 1), 2)) + 1)]]
     return "".join(s.array.__reversed__())
 
 def parenCheckerSansStacks(list):
