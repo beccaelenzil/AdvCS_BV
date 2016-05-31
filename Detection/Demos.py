@@ -1,49 +1,9 @@
-import numpy as np
 import random
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-def mag(array):
-    return np.sqrt(sum([el**2 for el in array]))
-
-def normalized(array):
-    return array / mag(array)
-
-def getPTMat(src, dst):
-    a = getHGFromPts(src)
-    b = getHGFromPts(dst)
-    return b * a.I
-
-def getHGFromPts(pts): #take 3x4 homogenous matrix of column points, return 3x3
-    m1 = pts[:,:-1]
-    m2 = pts[:,-1]
-    coeffs = m1.I * m2
-    return np.multiply(np.matrix([coeffs.A1.tolist()] * 3), m1)
-
-def hgToEuc(m): #matrix of homogenous coords to list of tuple Euclidean coords
-    return [(m[0,i]/m[2,i], m[1,i]/m[2,i]) for i in range(m.shape[1])]
-
-def planeFromPts(pts): #3x3 Euclidean 3d coords to find plane eq through
-    n = np.cross(np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,0])),\
-                 np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,1])))
-    return n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))
-
-def perspectiveTransformDemo():
-    b1x = [0, 1, 1, 0]
-    b1y = [1, 1, 0, 0]
-
-    b2x = [.45, .55, .3, .8]
-    b2y = [.8,  .8,  .4, .4]
-
-    src = np.matrix([b1x, b1y, [1]*4])
-    dst = np.matrix([b2x, b2y, [1]*4])
-    t = getPTMat(src, dst)
-
-    #test transform matrix by turning dest points back into source
-    orig = hgToEuc(t.I * dst) #array of tuple points
-    plt.scatter([orig[i][0] for i in range(len(orig))], [orig[i][1] for i in range(len(orig))], color='red')
-    plt.scatter(b2x, b2y, color='blue') #dest points
-    plt.show()
+from Funcs import *
+from Perceptron import Perceptron
+from pykinect2 import PyKinectV2
+from pykinect2.PyKinectV2 import *
+from pykinect2 import PyKinectRuntime
 
 def planeFromPtsDemo():
     fig = plt.figure()
@@ -89,4 +49,37 @@ def unitSquareOnPlaneDemo():
     ax.scatter([0], [0], [-d/c], c='b')
     plt.show()
 
-unitSquareOnPlaneDemo()
+def perceptronDemo():
+    m = np.matrix([[1,2],[2,4],[3,6]]).T
+    p = Perceptron()
+    p.trainDynamicRate(m, .2, 0.01, 100)
+    print p
+    print "Total error: "
+    print p.avgerror(m)
+
+def perspectiveTransformDemo():
+    b1x = [0, 1, 1, 0]
+    b1y = [1, 1, 0, 0]
+
+    b2x = [.45, .55, .3, .8]
+    b2y = [.8,  .8,  .4, .4]
+
+    src = np.matrix([b1x, b1y, [1]*4])
+    dst = np.matrix([b2x, b2y, [1]*4])
+    t = getPTMat(src, dst)
+
+    #test transform matrix by turning dest points back into source
+    orig = hgToEuc(t.I * dst) #array of tuple points
+    plt.scatter([orig[i][0] for i in range(len(orig))], [orig[i][1] for i in range(len(orig))], color='red')
+    plt.scatter(b2x, b2y, color='blue') #dest points
+    plt.show()
+
+
+def kinectDemo():
+    kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Depth)
+    while True:
+        if kinect.has_new_color_frame():
+            frame = kinect.get_last_color_frame()
+            print frame
+
+perceptronDemo()
