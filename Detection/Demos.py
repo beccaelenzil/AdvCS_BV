@@ -1,9 +1,11 @@
 import random
 from Funcs import *
 from Perceptron import Perceptron
-from pykinect2 import PyKinectV2
-from pykinect2.PyKinectV2 import *
-from pykinect2 import PyKinectRuntime
+from primesense import openni2
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+import cv2
 
 def planeFromPtsDemo():
     fig = plt.figure()
@@ -74,12 +76,16 @@ def perspectiveTransformDemo():
     plt.scatter(b2x, b2y, color='blue') #dest points
     plt.show()
 
-
+im = None
 def kinectDemo():
-    kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Depth)
-    while True:
-        if kinect.has_new_color_frame():
-            frame = kinect.get_last_color_frame()
-            print frame
+    fig = plt.figure()
+    openni2.initialize()
+    dev = openni2.Device.open_any()
+    ds = dev.create_depth_stream()
+    ds.start()
+    f = ds.read_frame().get_buffer_as_uint16()
+    a = np.ndarray((480,640),dtype=np.uint16,buffer=f)
+    im = plt.imshow(a)
+    plt.show()
 
-perceptronDemo()
+kinectDemo()
