@@ -1,6 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-
+import numpy.linalg as linalg
 """
 Find and regress planes given a 3xN matrix of real world 3d points
 """
@@ -13,7 +12,7 @@ Get the equation of a plane given a 3x3 matrix of Euclidean 3D coords that it pa
 def planeFromPts(pts):
     n = np.cross(np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,0])),\
                  np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,1])))
-    return n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))
+    return (n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))[0])
 
 """
 ~done but not tested~
@@ -34,7 +33,7 @@ def rwCoordsFromKinect(pts):
         newy[i] = pts[2,i] / np.sqrt((ky/pts[1,i])**2 + 1)
         newz[i] = np.sqrt(pts[2,i]**2 - newx[i]**2)
 
-    return np.matrix([newx, newy, newz])
+    return [(newx[i], newy[i], newz[i]) for i in range(len(newx))]
 
 """
 Magnitude of a numpy array
@@ -70,3 +69,52 @@ Convert a matrix of homogenous coords to list of tuple Euclidean coords
 """
 def hgToEuc(m):
     return [(m[0,i]/m[2,i], m[1,i]/m[2,i]) for i in range(m.shape[1])]
+
+def hgToEuc3D(m):
+    return [(m[0,i]/m[3,i], m[1,i]/m[3,i], m[2,i]/m[3,i]) for i in range(m.shape[1])]
+
+def hgToEuc3DArray(m):
+    return [(el[0]/el[3], el[1]/el[3], el[2]/el[3]) for el in m]
+
+"""
+Skew-symmetric cross product
+"""
+def sscp(v):
+    return np.matrix([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+
+"""
+Gets angle between vectors
+"""
+def angBtwn(v1, v2):
+    return np.arccos(np.dot(v1, v2)/(mag(v1)*mag(v2)))
+
+"""
+Gives the transform between A and B, two Nx3 matrices of column vectors.
+Transform represented as p' = Rp + t
+Returns R,t
+Uses nasty linear algebra stuff, so approach is HEAVILY based on: http://nghiaho.com/uploads/code/rigid_transform_3D.py_
+"""
+def rigid_transform(A, B):
+    if len(A) != len(B):
+        print "Matrix dimension mismatch in rigid transform"
+        return None
+    n = A.shape[0]
+
+    #get centroids
+    ctrA = np.mean(A, axis=0)
+    ctrB = np.mean(B, axis=0)
+
+    #adjust shapes to have same center
+    AA = A - np.tile(ctrA, (n, 1))
+    BB = B - np.tile(ctrB, (n, 1))
+
+    #gross...
+    H = AA.T * BB
+    U, S, Vt = linalg.svd(H)
+    R = Vt.T * U.T
+    if linalg.det(R) < 0:
+        Vt[2,:] *= -1
+        R = Vt.T * U.T
+    t = -R*ctrA.T + ctrB.T
+
+    return R, t

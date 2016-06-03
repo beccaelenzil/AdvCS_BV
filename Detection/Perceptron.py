@@ -11,11 +11,12 @@ class Perceptron:
         self.w = None
     def train(self, data, rate, iters):
         pts = np.asarray(data.T) #make into array
-        self.w = np.array([0.1] * data.shape[0])
+        self.w = np.array([0.1] * (data.shape[0]+1))
         for i in range(iters):
             pt = random.choice(pts)
-            e = np.dot(self.w, pt)
-            self.w += rate * -e * normalized(pt)
+            e = np.dot(self.w, np.append(pt, np.array([1])))
+            self.w += rate * -e * normalized(np.append(pt, np.array([1])))
+
     def trainDynamicRate(self, data, ri, rk, iters): #same but learning rate decreases as function of iteration
         pts = np.asarray(data.T) #make into array
         self.w = np.array([0.1] * data.shape[0])
@@ -23,6 +24,7 @@ class Perceptron:
             pt = random.choice(pts)
             e = np.dot(self.w, pt)
             self.w += ri*np.e**(-rk*i) * -e * normalized(pt)
+
     def avgerror(self, set): #if 3XN matrix of pts has a average error < thresh
         e = 0
         for i in range(set.shape[1]):
