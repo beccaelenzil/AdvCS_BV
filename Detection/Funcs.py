@@ -1,5 +1,19 @@
 import numpy as np
 import numpy.linalg as linalg
+from primesense import openni2
+
+def fetchDepthFrame(ds):
+    f = ds.read_frame().get_buffer_as_uint16()
+    a = np.ndarray((480,640),dtype=np.uint16,buffer=f)
+    ipts = []
+    for y in range(180, 300, 20):
+        for x in range(260, 380, 20):
+            ipts.append((x, y, a[y][x]))
+    fpts = [None] * len(ipts)
+    for i in range(len(ipts)):
+        fpts[i] = openni2.convert_depth_to_world(ds, ipts[i][0], ipts[i][1], ipts[i][2])
+    return fpts
+
 """
 Find and regress planes given a 3xN matrix of real world 3d points
 """

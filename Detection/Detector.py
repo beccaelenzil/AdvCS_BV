@@ -7,33 +7,31 @@ from Funcs import *
 from primesense import openni2
 from primesense import _openni2 as c_api
 from mpl_toolkits.mplot3d import axes3d, Axes3D
+import ctypes
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
+fig2 = plt.figure()
+ax2 = fig2.add_subplot(111, projection='3d')
+#ax.set_xlim3d([0,150])
+#ax.set_ylim3d([0,150])
+#ax.set_zlim3d([0,800])
 plt.ion()
 plt.show()
 
 openni2.initialize()
 dev = openni2.Device.open_any()
 ds = dev.create_depth_stream()
+cs = dev.create_color_stream()
 ds.start()
+cs.start()
 
 while(1):
-    f = ds.read_frame().get_buffer_as_uint16()
-    a = np.ndarray((480,640),dtype=np.uint16,buffer=f)
-    ipts = []
-    for y in range(180, 300, 20):
-        for x in range(260, 380, 20):
-            ipts.append((x, y, a[y][x]))
-    m = np.matrix(ipts).T
-    fpts = rwCoordsFromKinect(m)
-    plt.cla()
-    ax.scatter([pt[0] for pt in fpts], [pt[1] for pt in fpts], [pt[2] for pt in fpts], color='r')
+    fpts = fetchDepthFrame(ds)
 
     a,b,c,d = planeFromPts(np.matrix(fpts[0:3]).T)
     n = np.array([a,b,c]) #vector normal to plane
 
-    #move all points onto the plane
     ppts = [None] * len(fpts)
     for i in range(len(fpts)):
         pt = np.array(fpts[i])
@@ -51,7 +49,12 @@ while(1):
     tpts = [(r*np.cos(theta), r*np.sin(theta)) for (r,theta) in pcoords]
 
     #print tpts
-    ax.scatter([pt[0] for pt in tpts], [pt[1] for pt in tpts], [0] * len(tpts), color='y')
+    plt.sca(ax)
+    plt.cla()
+    plt.sca(ax2)
+    plt.cla()
+    ax.scatter([pt[0] for pt in fpts], [pt[1] for pt in fpts], [pt[2] for pt in fpts], color='y')
+    ax2.scatter([pt[0] for pt in tpts], [pt[1] for pt in tpts], [0] * len(tpts), color='g')
     plt.draw()
     plt.pause(0.1)
 
@@ -125,4 +128,42 @@ o = np.array([0, 0, -d/c]) #the effective origin (the point on the plane with x=
             (b*(v**2+w**2)-v*(a*u+c*w-u*x-v*y-w*z))*(1-np.cos(theta)) + (u**2+v**2+w**2)*y*np.cos(theta) + np.sqrt(u**2+v**2+w**2)*(c*u-a*w+w*x-u*z)*np.sin(theta),\
             (c*(u**2+v**2)-w*(a*u+b*v-u*x-v*y-w*z))*(1-np.cos(theta)) + (u**2+v**2+w**2)*z*np.cos(theta) + np.sqrt(u**2+v**2+w**2)*(-b*u+a*v-v*x+u*y)*np.sin(theta)])\
             /(u**2+v**2+w**2)
+"""
+
+"""
+plane_vector = np.cross(np.array([0,1,0]), n) #a random vector in the plane
+    o = np.array([0, 0, -d/c]) #the origin at x=y=0
+    v = [None] * 4 #vertices of a unit square on the plane
+    v[0] = normalized(plane_vector) * np.sqrt(2)/2
+    v[1] = normalized(np.cross(n, v[0]))
+    v[2] = -v[0]
+    v[3] = -v[1]
+    v = [el + o for el in v] #adjust to put on origin
+
+    verts2d = [None] * 4
+    for i in range(4): #convert world to color
+        verts2d[i] = openni2.convert_world_to_depth(ds, v[i][0], v[i][1], v[i][2])
+        verts2d[i] = openni2.convert_depth_to_color(ds, cs,\
+                                                    int(verts2d[i][0]),\
+                                                    int(verts2d[i][1]),\
+                                                    int(verts2d[i][2]))
+"""
+
+"""
+ #move all points onto the plane
+    ppts = [None] * len(fpts)
+    for i in range(len(fpts)):
+        pt = np.array(fpts[i])
+        #get point of intersection of plane with normal line going through
+        s = -(a*pt[0] + b*pt[1] + c*pt[2] + d)/np.dot(n, n)
+        ppts[i] = pt + s*n
+
+    #now get polar coordinates
+    pcoords = [None] * len(fpts)
+    o = ppts[0] #define an origin
+    v1 = normalized(ppts[1]-o) #a vector parallel to the plane to get angles against
+    for i in range(len(ppts)):
+        pcoords[i] = (mag(ppts[i]-o), angBtwn(v1, ppts[i]-o))
+
+    tpts = [(r*np.cos(theta), r*np.sin(theta)) for (r,theta) in pcoords]
 """
