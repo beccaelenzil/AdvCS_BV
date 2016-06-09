@@ -8,16 +8,10 @@ from primesense import openni2
 from primesense import _openni2 as c_api
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import ctypes
+import munkres
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-fig2 = plt.figure()
-ax2 = fig2.add_subplot(111, projection='3d')
-#ax.set_xlim3d([0,150])
-#ax.set_ylim3d([0,150])
-#ax.set_zlim3d([0,800])
-plt.ion()
-plt.show()
+def getTrainingData():
+    return np.array([[]] * len(pts))
 
 openni2.initialize()
 dev = openni2.Device.open_any()
@@ -26,38 +20,60 @@ cs = dev.create_color_stream()
 ds.start()
 cs.start()
 
+munk = munkres.Munkres()
+
 while(1):
-    fpts = fetchDepthFrame(ds)
+    #get the color frame
+    f = cs.read_frame()
+    d = f.get_buffer_as_uint8()
+    img = np.frombuffer(d, dtype=np.uint8)
+    img.shape = (480,640,3)
 
-    a,b,c,d = planeFromPts(np.matrix(fpts[0:3]).T)
-    n = np.array([a,b,c]) #vector normal to plane
+    frames = fetchDepthFrames(ds, 4) #get frames as np arrays
 
-    ppts = [None] * len(fpts)
-    for i in range(len(fpts)):
-        pt = np.array(fpts[i])
-        #get point of intersection of plane with normal line going through
-        s = -(a*pt[0] + b*pt[1] + c*pt[2] + d)/np.dot(n, n)
-        ppts[i] = pt + s*n
+    #find corners with Harris algorithm
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #leave img unaltered, used in UI
+    dst = cv2.cornerHarris(gray,2,3,0.04)
+    thresh = max(dst) * 0.01
+    corners = []
+    for y in xrange(480):
+        for x in xrange(640):
+            if dst[y][x] > thresh:
+                dpt = colorToDepth(ds, cs, (x,y))
+                corners.append(dpt)
+                cv2.circle(img, (x,y), 4, (255,0,0), 1) #draw circle to highlight corners found
+                #label depth coords
+                cv2.putText(img,\
+                            str(openni2.convert_depth_to_world(ds, dpt[0], dpt[1], np.median([f[y][x] for f in frames if f[y][x] != 0]))),\
+                            (x,y+10), cv2.FONT_HERSHEY_SIMPLEX, 4, (255,255,0), 2, cv2.LINE_AA)
 
-    #now get polar coordinates
-    pcoords = [None] * len(fpts)
-    o = ppts[0] #define an origin
-    v1 = normalized(ppts[1]-o) #a vector parallel to the plane to get angles against
-    for i in range(len(ppts)):
-        pcoords[i] = (mag(ppts[i]-o), angBtwn(v1, ppts[i]-o))
+    fpts = processDepthFrames(ds, frames, corners) #average frames and get the needed points
+    pts = np.array(fpts) #list of world coords of corners
 
-    tpts = [(r*np.cos(theta), r*np.sin(theta)) for (r,theta) in pcoords]
+    #draw lines between verts
+    for i in range(len(pts)):
+        for j in range(i+1):
+            cv2.line(img, pts[i], pts[j], (255,0,0), 2)
 
-    #print tpts
-    plt.sca(ax)
-    plt.cla()
-    plt.sca(ax2)
-    plt.cla()
-    ax.scatter([pt[0] for pt in fpts], [pt[1] for pt in fpts], [pt[2] for pt in fpts], color='y')
-    ax2.scatter([pt[0] for pt in tpts], [pt[1] for pt in tpts], [0] * len(tpts), color='g')
-    plt.draw()
-    plt.pause(0.1)
+    angs = np.array([[]] * len(pts)) #descriptors of each vert (angles of each radiating line relative to arbitrary axis)
+    for i in range(len(pts)): #for each vertex/origin point
+        #MAKE SURE differentiates between above/below x
+        absangs = np.array([angBtwn(pts[0], pt) for pt in pts if pts[i] != pt]) #absolute angles relative to x axis
+        absangs.sort()
+        angs[i] = [(absangs[idx+1]-absangs[idx])%(np.pi*2) for idx in range(-1, len(absangs)-1)] #relative to each other
 
+    #STILL NEED TO IMPLEMENT
+    angs2 = getTrainingData()
+    #-------------------------------------------
+
+    diffs = [[sqmag(a2-a1) for a1 in angs] for a2 in angs2] #get geometric length of error between training verts and sampled ones
+    combos = munk.compute(diffs)
+
+    #if this is under a threshold, then the pattern is recognized
+    error = sum([diffs[combo[0]][combo[1]] for combo in combos])
+    print error
+
+    cv2.imshow('detector', img)
 
 #OLD CRAP
 #im = cv2.imread("Images\\star.png")

@@ -1,24 +1,63 @@
 import numpy as np
 import numpy.linalg as linalg
 from primesense import openni2
+from matplotlib import pyplot as plt
+import sys
 
-def fetchDepthFrame(ds):
-    f = ds.read_frame().get_buffer_as_uint16()
-    a = np.ndarray((480,640),dtype=np.uint16,buffer=f)
-    ipts = []
-    for y in range(180, 300, 20):
-        for x in range(260, 380, 20):
-            ipts.append((x, y, a[y][x]))
-    fpts = [None] * len(ipts)
+"""
+Averages n depth frames, returns world coodinates of 2d depth pixel coordinates given in pts array
+Also takes depth stream (ds) instance for reference
+"""
+def fetchDepthFrames(ds, n):
+    #fetch n sequential frames
+    frames = [None] * n
+    for i in range(n):
+        f = ds.read_frame().get_buffer_as_uint16()
+        frames[i] = np.ndarray((480,640),dtype=np.uint16,buffer=f)
+        plt.pause(1.0/30) #assume 30 fps
+    return frames
+
+def processDepthFrames(ds, frames, pts):
+    #get a median non-0 depth value
+    ipts = [None] * len(pts)
+    i = 0
+    for x,y in pts:
+        ipts[i] = (x, y, np.median([f[y][x] for f in frames if f[y][x] != 0])) #ignore 0 values (out of measuring range)
+        i += 1
+
+    fpts = [None] * len(pts)
     for i in range(len(ipts)):
         fpts[i] = openni2.convert_depth_to_world(ds, ipts[i][0], ipts[i][1], ipts[i][2])
     return fpts
 
 """
-Find and regress planes given a 3xN matrix of real world 3d points
+dumb inefficient but necessary method to get depth point from color
+ds - depth stream
+cs - color stream
+dframe - depth frame (as np array)
+pt - color point to convert
 """
-def findPlanes(pts):
-    n = 0
+def colorToDepth(ds, cs, dframe, pt):
+    guess = pt #guess for which depth point it is, start by assuming they're same point
+    bestErr = sys.maxint
+    bestGuess = None
+    while True:
+        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe[guess[0]][guess[1]])
+
+         #check if its right or hit local minimum (then just give up and give best one)
+        if cpt == pt or ((cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2) > bestErr:
+            return bestGuess
+        bestErr = (cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2
+        bestGuess = guess
+
+        if cpt[0] < pt[0]:
+            guess[0] += 1
+        elif cpt[0] > pt[0]:
+            guess[0] -= 1
+        if cpt[1] < pt[1]:
+            guess[1] += 1
+        elif cpt[1] > pt[1]:
+            guess[1] -= 1
 
 """
 Get the equation of a plane given a 3x3 matrix of Euclidean 3D coords that it passes through
@@ -27,6 +66,25 @@ def planeFromPts(pts):
     n = np.cross(np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,0])),\
                  np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,1])))
     return (n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))[0])
+
+"""
+Fit a plane to the given list of points
+"""
+def fitPlane(pts):
+    xs = np.array([pt[0] for pt in pts])
+    ys = np.array([pt[1] for pt in pts])
+    zs = np.array([pt[2] for pt in pts])
+    sxx = sum(xs**2)
+    sxy = sum(xs*ys)
+    syy = sum(ys**2)
+    sx = sum(xs)
+    sy = sum(ys)
+    a = np.matrix([[sxx, sxy, sx],\
+                   [sxy, syy, sy],\
+                   [sx,  sy,  len(pts)]])
+    b = np.matrix([[sum(xs*zs)], [sum(ys*zs)], [sum(zs)]])
+    x = np.asarray(a.I * b).flatten()
+    return (x[0], x[1], x[2], np.mean([-np.dot(pt, x) for pt in pts]))
 
 """
 ~done but not tested~
@@ -54,6 +112,12 @@ Magnitude of a numpy array
 """
 def mag(array):
     return np.sqrt(sum([el**2 for el in array]))
+
+"""
+Square magnitude of a numpy array
+"""
+def sqmag(array):
+    return sum([el**2 for el in array])
 
 """
 Return the unit vector version of this array
