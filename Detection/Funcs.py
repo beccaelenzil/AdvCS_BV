@@ -3,7 +3,7 @@ import numpy.linalg as linalg
 from primesense import openni2
 from matplotlib import pyplot as plt
 import sys
-
+from DepthFrames import DepthFrameSample
 """
 Averages n depth frames, returns world coodinates of 2d depth pixel coordinates given in pts array
 Also takes depth stream (ds) instance for reference
@@ -15,14 +15,14 @@ def fetchDepthFrames(ds, n):
         f = ds.read_frame().get_buffer_as_uint16()
         frames[i] = np.ndarray((480,640),dtype=np.uint16,buffer=f)
         plt.pause(1.0/30) #assume 30 fps
-    return frames
+    return DepthFrameSample(frames)
 
 def processDepthFrames(ds, frames, pts):
     #get a median non-0 depth value
     ipts = [None] * len(pts)
     i = 0
     for x,y in pts:
-        ipts[i] = (x, y, np.median([f[y][x] for f in frames if f[y][x] != 0])) #ignore 0 values (out of measuring range)
+        ipts[i] = (x, y, frames.getPoint((x,y))) #ignore 0 values (out of measuring range)
         i += 1
 
     fpts = [None] * len(pts)
@@ -34,15 +34,16 @@ def processDepthFrames(ds, frames, pts):
 dumb inefficient but necessary method to get depth point from color
 ds - depth stream
 cs - color stream
-dframe - depth frame (as np array)
+dframe - depth frame (as DepthFrameSample)
 pt - color point to convert
 """
 def colorToDepth(ds, cs, dframe, pt):
-    guess = pt #guess for which depth point it is, start by assuming they're same point
+    guess = [pt[0], pt[1]] #guess for which depth point it is, start by assuming they're same point
     bestErr = sys.maxint
     bestGuess = None
+    print "Target: " + str(pt)
     while True:
-        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe[guess[0]][guess[1]])
+        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe.getPoint(guess))
 
          #check if its right or hit local minimum (then just give up and give best one)
         if cpt == pt or ((cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2) > bestErr:
@@ -161,10 +162,14 @@ def sscp(v):
     return np.matrix([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
 
 """
-Gets angle between vectors
+Gets counterclockwise angle between vectors (needs plane normal for signed angle)
 """
-def angBtwn(v1, v2):
-    return np.arccos(np.dot(v1, v2)/(mag(v1)*mag(v2)))
+def angBtwn(v1, v2, n):
+    a = np.arccos(np.dot(v1, v2)/(mag(v1)*mag(v2))) #sine and cosine of angle
+    print np.dot(np.cross(v1,v2), n)
+    if np.dot(np.cross(v1,v2), n) < 0:
+        a = 2*np.pi - a
+    return a
 
 """
 Gives the transform between A and B, two Nx3 matrices of column vectors.

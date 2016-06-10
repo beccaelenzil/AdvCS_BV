@@ -9,9 +9,14 @@ from primesense import _openni2 as c_api
 from mpl_toolkits.mplot3d import axes3d, Axes3D
 import ctypes
 import munkres
+import time
 
 def getTrainingData():
-    return np.array([[]] * len(pts))
+    return np.array([[]])
+
+crop = (170,250,300,450) #x1,y1,x2,y2 of rectangle selection of image to use
+fheight = crop[2]-crop[0]
+fwidth = crop[3]-crop[1]
 
 openni2.initialize()
 dev = openni2.Device.open_any()
@@ -28,52 +33,87 @@ while(1):
     d = f.get_buffer_as_uint8()
     img = np.frombuffer(d, dtype=np.uint8)
     img.shape = (480,640,3)
+    #preprocess RGB frame
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    img = cv2.flip(img, 1)
+    img = img[crop[0]:crop[2],crop[1]:crop[3]]
 
-    frames = fetchDepthFrames(ds, 4) #get frames as np arrays
+    frames = fetchDepthFrames(ds, 4) #get frames as DepthFrameSample instance
+    frames.crop(crop)
 
     #find corners with Harris algorithm
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #leave img unaltered, used in UI
-    dst = cv2.cornerHarris(gray,2,3,0.04)
-    thresh = max(dst) * 0.01
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.medianBlur(gray, 5)
+    #gray = cv2.Canny(gray, 10, 50, apertureSize=3)
+    cv2.imshow('gray', gray)
+    dst = cv2.cornerHarris(gray, 12, 5, 0.04)
+    thresh = dst.max() * 0.01
     corners = []
-    for y in xrange(480):
-        for x in xrange(640):
+
+    ucorners = [] #unfiltered corners
+    for y in xrange(fheight):
+        for x in xrange(fwidth):
             if dst[y][x] > thresh:
-                dpt = colorToDepth(ds, cs, (x,y))
-                corners.append(dpt)
-                cv2.circle(img, (x,y), 4, (255,0,0), 1) #draw circle to highlight corners found
-                #label depth coords
-                cv2.putText(img,\
-                            str(openni2.convert_depth_to_world(ds, dpt[0], dpt[1], np.median([f[y][x] for f in frames if f[y][x] != 0]))),\
-                            (x,y+10), cv2.FONT_HERSHEY_SIMPLEX, 4, (255,255,0), 2, cv2.LINE_AA)
+                ucorners.append([x, y])
+
+    usedcorners = []
+    for c in ucorners:
+        if c in usedcorners:
+            continue
+        d = [(uc[0]-c[0], uc[1]-c[1]) for uc in ucorners] #distances from current corner to all others
+        closecorners = []
+        for i in range(len(d)):
+            if mag(d[i]) < 50: #if close
+                closecorners.append(ucorners[i])
+                usedcorners.append(ucorners[i])
+        if len(closecorners) == 0:
+            continue
+        corners.append((int(np.median([el[0] for el in closecorners])), int(np.median([el[1] for el in closecorners])))) #use centroid
+
+    for c in corners:
+        #get equivalent depth point and add to list
+        #dpt = colorToDepth(ds, cs, frames, (x,y))
+
+        #draw onto UI to show found corners, and label coordinates
+        cv2.circle(img, c, 4, (255,0,0), 2)
+        #cv2.putText(img, str(openni2.convert_depth_to_world(ds, dpt[0], dpt[1], frames.getPoint(dpt))),\
+        #            (x+8,y+8), cv2.FONT_HERSHEY_SIMPLEX, 4, (255,255,0), 2, cv2.LINE_AA)
 
     fpts = processDepthFrames(ds, frames, corners) #average frames and get the needed points
     pts = np.array(fpts) #list of world coords of corners
 
     #draw lines between verts
-    for i in range(len(pts)):
+    for i in range(len(corners)):
         for j in range(i+1):
-            cv2.line(img, pts[i], pts[j], (255,0,0), 2)
+            cv2.line(img, corners[i], corners[j], (0,255,0), 1)
 
-    angs = np.array([[]] * len(pts)) #descriptors of each vert (angles of each radiating line relative to arbitrary axis)
+    """
+    #get origin (centroid)
+    o = np.array([np.mean([el[0] for el in pts]), np.mean([el[1] for el in pts]), np.mean([el[1] for el in pts])])
+    vs = pts - o #relative vectors
+
+    svds = np.array([[]] * len(pts)) #sampled vertex descriptors (angles of each radiating line relative to previous)
+    norm = np.cross(pts[0], pts[1]) #arbitrary normal vector for signed angle reference
     for i in range(len(pts)): #for each vertex/origin point
-        #MAKE SURE differentiates between above/below x
-        absangs = np.array([angBtwn(pts[0], pt) for pt in pts if pts[i] != pt]) #absolute angles relative to x axis
-        absangs.sort()
-        angs[i] = [(absangs[idx+1]-absangs[idx])%(np.pi*2) for idx in range(-1, len(absangs)-1)] #relative to each other
+        absangs = np.array([angBtwn(pts[0]-pts[i], pt-pts[i], norm) for pt in pts if pts[i] != pt]) #absolute angles relative to pts[0]-pts[i] (vector from current vert to first corner)
+        absangs.sort() #order the angles, starting with 0 and going CCW
+        svds[i] = [(absangs[idx]-absangs[idx-1])%(np.pi*2) for idx in range(len(absangs))] #relative to each other
+        svds[i] = svds[i][np.argmin(svds[i]):] + svds[i][:np.argmin(svds[i])] #"rotate" so that smallest value is first (not to be confused with sorting, order is same but different one first)
 
     #STILL NEED TO IMPLEMENT
-    angs2 = getTrainingData()
+    tverts = getTrainingData() #trained vertices
     #-------------------------------------------
 
-    diffs = [[sqmag(a2-a1) for a1 in angs] for a2 in angs2] #get geometric length of error between training verts and sampled ones
+    diffs = [[sqmag(a2-a1) for a1 in svds] for a2 in tverts] #get geometric length of error between training verts and sampled ones
     combos = munk.compute(diffs)
 
     #if this is under a threshold, then the pattern is recognized
-    error = sum([diffs[combo[0]][combo[1]] for combo in combos])
+    error = sum([diffs[row][col] for row,col in combos])
     print error
+    """
 
     cv2.imshow('detector', img)
+    cv2.waitKey(50) #use for delay to allow time for refresh - can't find designated wait function??? But this works
 
 #OLD CRAP
 #im = cv2.imread("Images\\star.png")
