@@ -4,6 +4,12 @@ from primesense import openni2
 from matplotlib import pyplot as plt
 import sys
 from DepthFrames import DepthFrameSample
+
+#---------------------------------------------
+# All the utility math/image processing functions that are needed in the main one
+# Lots are unused since they were implemented for old approaches
+#---------------------------------------------
+
 """
 Averages n depth frames, returns world coodinates of 2d depth pixel coordinates given in pts array
 Also takes depth stream (ds) instance for reference
@@ -17,19 +23,6 @@ def fetchDepthFrames(ds, n):
         plt.pause(1.0/30) #assume 30 fps
     return DepthFrameSample(frames)
 
-def processDepthFrames(ds, frames, pts):
-    #get a median non-0 depth value
-    ipts = [None] * len(pts)
-    i = 0
-    for x,y in pts:
-        ipts[i] = (x, y, frames.getPoint((x,y))) #ignore 0 values (out of measuring range)
-        i += 1
-
-    fpts = [None] * len(pts)
-    for i in range(len(ipts)):
-        fpts[i] = openni2.convert_depth_to_world(ds, ipts[i][0], ipts[i][1], ipts[i][2])
-    return fpts
-
 """
 dumb inefficient but necessary method to get depth point from color
 ds - depth stream
@@ -41,13 +34,12 @@ def colorToDepth(ds, cs, dframe, pt):
     guess = [pt[0], pt[1]] #guess for which depth point it is, start by assuming they're same point
     bestErr = sys.maxint
     bestGuess = None
-    print "Target: " + str(pt)
     while True:
-        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe.getPoint(guess))
+        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe.getPointAreaAvg(guess, 1))
 
          #check if its right or hit local minimum (then just give up and give best one)
         if cpt == pt or ((cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2) > bestErr:
-            return bestGuess
+            return (bestGuess[0], bestGuess[1], dframe.getPointAreaAvg(bestGuess, 1))
         bestErr = (cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2
         bestGuess = guess
 
@@ -166,7 +158,6 @@ Gets counterclockwise angle between vectors (needs plane normal for signed angle
 """
 def angBtwn(v1, v2, n):
     a = np.arccos(np.dot(v1, v2)/(mag(v1)*mag(v2))) #sine and cosine of angle
-    print np.dot(np.cross(v1,v2), n)
     if np.dot(np.cross(v1,v2), n) < 0:
         a = 2*np.pi - a
     return a

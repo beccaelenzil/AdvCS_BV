@@ -10,14 +10,36 @@ from mpl_toolkits.mplot3d import axes3d, Axes3D
 import ctypes
 import munkres
 import time
+import operator
+import xmltodict
 
-def getTrainingData():
+"""
+Loads a shape "profile" from a XML file.
+Separate from funcs since its not image processing.
+Returns a 2D array of vertex descriptors like the one found in
+"""
+def getTrainingData(name):
     return np.array([[]])
 
-crop = (170,250,300,450) #x1,y1,x2,y2 of rectangle selection of image to use
+try:
+    with open("def_window.txt", 'r') as file:
+        params = file.read().split(",")
+        crop = [int(p) for p in params]
+except:
+    crop = [100,250,250,450] #default values of x1,y1,x2,y2 of rectangle selection of image to use
+
 fheight = crop[2]-crop[0]
 fwidth = crop[3]-crop[1]
 
+CPXTHRESH = 10 #minimum number of 'on' pixels in a corner region for it to be counted
+CORNER_MIN_DISTANCE = 30 #minimum distance between corners
+
+#fig = plt.figure()
+#ax = fig.add_subplot(111, projection='3d')
+#plt.ion()
+#plt.show()
+
+#initialize the Kinect interface library (OpenNI) and start streams
 openni2.initialize()
 dev = openni2.Device.open_any()
 ds = dev.create_depth_stream()
@@ -25,9 +47,11 @@ cs = dev.create_color_stream()
 ds.start()
 cs.start()
 
+#the assignment problem solver used in comparison
 munk = munkres.Munkres()
 
-while(1):
+while 1:
+
     #get the color frame
     f = cs.read_frame()
     d = f.get_buffer_as_uint8()
@@ -38,68 +62,96 @@ while(1):
     img = cv2.flip(img, 1)
     img = img[crop[0]:crop[2],crop[1]:crop[3]]
 
-    frames = fetchDepthFrames(ds, 4) #get frames as DepthFrameSample instance
-    frames.crop(crop)
-
     #find corners with Harris algorithm
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = cv2.medianBlur(gray, 5)
-    #gray = cv2.Canny(gray, 10, 50, apertureSize=3)
-    cv2.imshow('gray', gray)
-    dst = cv2.cornerHarris(gray, 12, 5, 0.04)
-    thresh = dst.max() * 0.01
-    corners = []
+    gray = cv2.blur(gray, (3,3))
+    dst = cv2.cornerHarris(gray, 6, 7, 0.02)
+    c = dst * (255.0/dst.max())
+    c = cv2.medianBlur(c, 3)
+    ret, c = cv2.threshold(c, 1, 255, cv2.THRESH_BINARY)
+    cv2.imshow("corners", c)
 
-    ucorners = [] #unfiltered corners
-    for y in xrange(fheight):
-        for x in xrange(fwidth):
-            if dst[y][x] > thresh:
-                ucorners.append([x, y])
+    corners = {} #dictionary to keep track of how well supported corners are
 
-    usedcorners = []
-    for c in ucorners:
-        if c in usedcorners:
-            continue
-        d = [(uc[0]-c[0], uc[1]-c[1]) for uc in ucorners] #distances from current corner to all others
-        closecorners = []
-        for i in range(len(d)):
-            if mag(d[i]) < 50: #if close
-                closecorners.append(ucorners[i])
-                usedcorners.append(ucorners[i])
-        if len(closecorners) == 0:
-            continue
-        corners.append((int(np.median([el[0] for el in closecorners])), int(np.median([el[1] for el in closecorners])))) #use centroid
+    #ignore outer pixel border so all referenced pixels have neighbors in all directions
+    for y in xrange(1, fheight-1):
+       for x in xrange(1, fwidth-1):
+            if c[y][x] > 0: #if any corner is found, otherwise go to next pixel
 
+                #perform simple rectangular blob detection to make sure this is actually a corner, not just noise
+                t,b,l,r = y, y+1, x, x+1 #the top, bottom, left and right coords of the rect being scanned
+                didSomething = True #know to stop when nothing happens anymore
+                while didSomething: #while there are neighboring 'on' pixels
+                    didSomething = False
+                    if (sum(c[t,l:r+1]) > 0 if t > 0 else False): #expand in each direction if there are any pixels in it
+                        t -= 1
+                        didSomething = True
+                    if (sum(c[b,l:r+1]) > 0 if b < fheight else False):
+                        b += 1
+                        didSomething = True
+                    if (sum(c[t:b+1,l]) > 0 if l > 0 else False):
+                        l -= 1
+                        didSomething = True
+                    if (sum(c[t:b+1,r]) > 0 if r < fwidth else False):
+                        r += 1
+                        didSomething = True
+
+                support = sum(c[t:b,l:r].flatten())/255 #how many 'on' pixels in region
+                if support < CPXTHRESH: #if not enough on pixels are contained
+                    continue
+
+                corner = ((l+r)/2, (t+b)/2) #take center of rectangle as corner coordinate
+                corners[corner] = support
+
+                 #black out used pixels to avoid duplicates
+                cv2.rectangle(c, (t,l), (b,r), (0,0,0), thickness=-1)
+
+    #check to make sure there aren't any too close to each other
+    pr = sorted(corners.items(), key=operator.itemgetter(1), reverse=True) #get corners in descending order of priority
+    for corner in pr:
+        worse = pr[pr.index(corner)+1:] #get sublist of all corners worse than this one
+        for c2 in worse:
+            if np.sqrt((corner[0][0] - c2[0][0])**2 + (corner[0][1] - c2[0][1])**2) < CORNER_MIN_DISTANCE:
+                pr.remove(c2)
+                del corners[c2[0]]
+
+    corners = corners.keys() #other info no longer needed
+
+    dframe = fetchDepthFrames(ds, 5)
+
+    verts = []
     for c in corners:
-        #get equivalent depth point and add to list
-        #dpt = colorToDepth(ds, cs, frames, (x,y))
+        dx,dy,dz = colorToDepth(ds, cs, dframe, (c[0] + crop[1], c[1] + crop[0]))
+        verts.append(np.array(openni2.convert_depth_to_world(ds, dx, dy, dz)))
 
-        #draw onto UI to show found corners, and label coordinates
-        cv2.circle(img, c, 4, (255,0,0), 2)
-        #cv2.putText(img, str(openni2.convert_depth_to_world(ds, dpt[0], dpt[1], frames.getPoint(dpt))),\
-        #            (x+8,y+8), cv2.FONT_HERSHEY_SIMPLEX, 4, (255,255,0), 2, cv2.LINE_AA)
-
-    fpts = processDepthFrames(ds, frames, corners) #average frames and get the needed points
-    pts = np.array(fpts) #list of world coords of corners
+    #draw onto UI to show found corners, and label coordinates
+    for idx in range(len(corners)):
+        cv2.circle(img, corners[idx], 4, (255,0,0), 2)
+        #cv2.putText(img, str(verts[idx].astype(int)), (corners[idx][0]-10,corners[idx][1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0,0,255), 1, cv2.LINE_AA)
 
     #draw lines between verts
     for i in range(len(corners)):
         for j in range(i+1):
-            cv2.line(img, corners[i], corners[j], (0,255,0), 1)
+            cv2.line(img, pr[i][0], pr[j][0], (0,255,0), 1)
 
-    """
+    #plt.cla()
+    #ax.scatter([v[0] for v in verts], [v[1] for v in verts], [v[2] for v in verts])
+    #plt.draw()
+
     #get origin (centroid)
-    o = np.array([np.mean([el[0] for el in pts]), np.mean([el[1] for el in pts]), np.mean([el[1] for el in pts])])
-    vs = pts - o #relative vectors
+    #o = np.array([np.mean([el[0] for el in verts]), np.mean([el[1] for el in verts]), np.mean([el[1] for el in verts])])
 
-    svds = np.array([[]] * len(pts)) #sampled vertex descriptors (angles of each radiating line relative to previous)
-    norm = np.cross(pts[0], pts[1]) #arbitrary normal vector for signed angle reference
-    for i in range(len(pts)): #for each vertex/origin point
-        absangs = np.array([angBtwn(pts[0]-pts[i], pt-pts[i], norm) for pt in pts if pts[i] != pt]) #absolute angles relative to pts[0]-pts[i] (vector from current vert to first corner)
+    svds = np.array([[]] * len(verts)) #sampled vertex descriptors (angles of each radiating line relative to previous)
+    norm = np.cross(verts[1]-verts[0], verts[2]-verts[0]) #arbitrary normal vector for signed angle reference
+    for i in range(len(verts)): #for each vertex/origin point
+        absangs = np.array([angBtwn(verts[0]-verts[i], pt-verts[i], norm) for pt in verts if not np.array_equal(verts[i], pt)]) #absolute angles relative to pts[0]-pts[i] (vector from current vert to first corner)
         absangs.sort() #order the angles, starting with 0 and going CCW
         svds[i] = [(absangs[idx]-absangs[idx-1])%(np.pi*2) for idx in range(len(absangs))] #relative to each other
         svds[i] = svds[i][np.argmin(svds[i]):] + svds[i][:np.argmin(svds[i])] #"rotate" so that smallest value is first (not to be confused with sorting, order is same but different one first)
 
+    print svds
+
+    """
     #STILL NEED TO IMPLEMENT
     tverts = getTrainingData() #trained vertices
     #-------------------------------------------
@@ -113,7 +165,39 @@ while(1):
     """
 
     cv2.imshow('detector', img)
-    cv2.waitKey(50) #use for delay to allow time for refresh - can't find designated wait function??? But this works
+    plt.pause(0.01)
+    code = cv2.waitKey(50) #use for delay to allow time for refresh, and see if a key was pressed to shift the frame
+    if code == -1: #nothing
+        pass
+    elif code == 2490368: #up
+        crop[0] -= 5
+        crop[2] -= 5
+    elif code == 2621440: #down
+        crop[0] += 5
+        crop[2] += 5
+    elif code == 2424832: #left
+        crop[1] -= 5
+        crop[3] -= 5
+    elif code == 2555904: #right
+        crop[1] += 5
+        crop[3] += 5
+    elif code == ord('z'): #zoom in
+        crop[0] += 2
+        crop[2] -= 2
+        crop[1] += 2
+        crop[3] -= 2
+        fheight = crop[2]-crop[0]
+        fwidth = crop[3]-crop[1]
+    elif code == ord('x'): #zoom out
+        crop[0] -= 2
+        crop[2] += 2
+        crop[1] -= 2
+        crop[3] += 2
+        fheight = crop[2]-crop[0]
+        fwidth = crop[3]-crop[1]
+    elif code == ord('s'): #save current frame
+        with open("def_window.txt", "w") as file:
+            file.write(str(crop)[1:-1]) #trim off square brackets
 
 #OLD CRAP
 #im = cv2.imread("Images\\star.png")
@@ -222,4 +306,23 @@ plane_vector = np.cross(np.array([0,1,0]), n) #a random vector in the plane
         pcoords[i] = (mag(ppts[i]-o), angBtwn(v1, ppts[i]-o))
 
     tpts = [(r*np.cos(theta), r*np.sin(theta)) for (r,theta) in pcoords]
+"""
+
+"""
+#Old convolution method
+
+#convolve over the image, for each pixel take the sum of differences of components with all its neighbors and use the greatest
+    diff = np.ndarray((480, 640), dtype=np.uint8)
+    for y in xrange(1, fheight-1):
+        for x in xrange(1, fwidth-1):
+            diff[y][x] = max([sum(abs(img[pxy,pxx,:]-img[y,x,:]))/3 \
+                              for (pxx,pxy) in ((x,y+1), (x+1,y+1), (x+1,y), (x+1,y-1), (x,y-1), (x-1,y-1), (x-1,y), (x-1,y+1))])
+    cv2.imshow('diff', diff)
+"""
+
+"""
+#for averaging canny frames
+for y in xrange(fheight):
+        for x in xrange(fwidth):
+            gray[y][x] = np.median([cframes[idx][y][x] for idx in range(CFRAME_SAMPLES)])
 """

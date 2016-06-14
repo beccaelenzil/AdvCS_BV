@@ -161,4 +161,4 @@ def transform3DDemo():
 
     plt.show()
 
-transform3DDemo()
+kinectImageDemo()
