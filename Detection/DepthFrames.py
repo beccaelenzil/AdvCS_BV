@@ -18,7 +18,7 @@ class DepthFrameSample:
         return int(np.median(a))
 
     """
-    Same, but take median of points with border a around pixel
+    Same, but take median of points with border size 'a' around pixel
     """
     def getPointAreaAvg(self, pt, a):
         vals = []

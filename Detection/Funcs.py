@@ -18,14 +18,14 @@ Also takes depth stream (ds) instance for reference
 def fetchDepthFrames(ds, n):
     #fetch n sequential frames
     frames = [None] * n
-    for i in range(n):
+    for i in range(n): #get n frames
         f = ds.read_frame().get_buffer_as_uint16()
         frames[i] = np.ndarray((480,640),dtype=np.uint16,buffer=f)
         plt.pause(1.0/30) #assume 30 fps
     return DepthFrameSample(frames)
 
 """
-dumb inefficient but necessary method to get depth point from color
+weird inefficient but necessary method to get depth point from color
 ds - depth stream
 cs - color stream
 dframe - depth frame (as DepthFrameSample)
@@ -36,15 +36,15 @@ def colorToDepth(ds, cs, dframe, pt):
     bestErr = sys.maxint
     bestGuess = None
     while True:
-        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe.getPointAreaAvg(guess, 1))
+        cpt = openni2.convert_depth_to_color(ds, cs, guess[0], guess[1], dframe.getPointAreaAvg(guess, 1)) #calculate color point with current guess
 
-         #check if its right or hit local minimum (then just give up and give best one)
+        #check if its right or hit local minimum (then just give up and give best one)
         if cpt == pt or ((cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2) > bestErr:
             return (bestGuess[0], bestGuess[1], dframe.getPointAreaAvg(bestGuess, 1))
-        bestErr = (cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2
+        bestErr = (cpt[0] - pt[0])**2 + (cpt[1] - pt[1])**2 #update best error
         bestGuess = guess
 
-        if cpt[0] < pt[0]:
+        if cpt[0] < pt[0]: #adjust guess based on result
             guess[0] += 1
         elif cpt[0] > pt[0]:
             guess[0] -= 1
@@ -58,11 +58,12 @@ Get the equation of a plane given a 3x3 matrix of Euclidean 3D coords that it pa
 """
 def planeFromPts(pts):
     n = np.cross(np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,0])),\
-                 np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,1])))
-    return (n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))[0])
+                 np.squeeze(np.asarray(pts[:,2]))-np.squeeze(np.asarray(pts[:,1]))) #get normal vector to use as (a,b,c) values
+    return (n[0], n[1], n[2], -np.dot(n, np.asarray(pts[:,2]))[0]) #get d offset with dot product
 
 """
 Fit a plane to the given list of points
+Another old approach that never worked very well
 """
 def fitPlane(pts):
     xs = np.array([pt[0] for pt in pts])
@@ -158,7 +159,7 @@ def angBtwn(v1, v2, n):
     c = np.dot(v1, v2)/(mag(v1)*mag(v2)) #sine and cosine of angle
     c = max(min(c, 1), -1) #make sure it doesn't go out of range and cause NaN (sometimes small rounding errors cause this)
     a = np.arccos(c)
-    if np.dot(np.cross(v1,v2), n) < 0:
+    if np.dot(np.cross(v1,v2), n) < 0: #check direction with normal vector, switch sign if its backwards
         a = 2*np.pi - a
     return a
 
