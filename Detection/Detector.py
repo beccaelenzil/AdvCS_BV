@@ -12,15 +12,20 @@ import munkres
 import time
 import operator
 import xmltodict
+import os
 
-"""
-Loads a shape "profile" from a XML file.
-Separate from funcs since its not image processing.
-Returns a 2D array of vertex descriptors like the one found in
-"""
-def getTrainingData(name):
-    return np.array([[]])
+#-------------------------
+# CONSTANTS
+CPXTHRESH = 12 #minimum number of 'on' pixels in a corner region for it to be counted, counteracts noise
+CORNER_MIN_DISTANCE = 15 #minimum distance between corners, used to avoid duplicates
+HARRIS_BLOCKSIZE = 8 #corner detector parameters - block size, Sobel derivative window size, and free parameter
+HARRIS_SOBEL = 9
+HARRIS_K = 0.03
+CORNER_THRESH = 3 #minimum value of Harris detector output that will be considered an 'on' pixel
+tnames = ['arrow', 'rhombus', 'trapezoid'] #names of learned shapes to load
+#-------------------------
 
+#see if a window position was saved from a previous run, if not use the default near the center of the screen
 try:
     with open("def_window.txt", 'r') as file:
         params = file.read().split(",")
@@ -28,16 +33,14 @@ try:
 except:
     crop = [100,250,250,450] #default values of x1,y1,x2,y2 of rectangle selection of image to use
 
+#width and height of subframe
 fheight = crop[2]-crop[0]
 fwidth = crop[3]-crop[1]
 
-CPXTHRESH = 10 #minimum number of 'on' pixels in a corner region for it to be counted
-CORNER_MIN_DISTANCE = 30 #minimum distance between corners
-
-#fig = plt.figure()
-#ax = fig.add_subplot(111, projection='3d')
-#plt.ion()
-#plt.show()
+#load training data as dictionary
+shapes = {}
+for fname in tnames:
+    shapes[fname] = getTrainingData(fname + '.xml') #trained vertex descriptors
 
 #initialize the Kinect interface library (OpenNI) and start streams
 openni2.initialize()
@@ -60,18 +63,19 @@ while 1:
     #preprocess RGB frame
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     img = cv2.flip(img, 1)
+    img_orig = img.copy()
     img = img[crop[0]:crop[2],crop[1]:crop[3]]
 
     #find corners with Harris algorithm
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.blur(gray, (3,3))
-    dst = cv2.cornerHarris(gray, 6, 7, 0.02)
+    dst = cv2.cornerHarris(gray, HARRIS_BLOCKSIZE, HARRIS_SOBEL, HARRIS_K)
     c = dst * (255.0/dst.max())
     c = cv2.medianBlur(c, 3)
-    ret, c = cv2.threshold(c, 1, 255, cv2.THRESH_BINARY)
+    ret, c = cv2.threshold(c, CORNER_THRESH, 255, cv2.THRESH_BINARY)
     cv2.imshow("corners", c)
 
-    corners = {} #dictionary to keep track of how well supported corners are
+    corners = {} #dictionary to keep track of how well supported corners are (how many px are in region)
 
     #ignore outer pixel border so all referenced pixels have neighbors in all directions
     for y in xrange(1, fheight-1):
@@ -117,55 +121,72 @@ while 1:
 
     corners = corners.keys() #other info no longer needed
 
+    #get depth frames as DepthFrameSample instance
     dframe = fetchDepthFrames(ds, 5)
 
+    #get 'verts' (world coordinates) from corners
     verts = []
     for c in corners:
-        dx,dy,dz = colorToDepth(ds, cs, dframe, (c[0] + crop[1], c[1] + crop[0]))
+        dx,dy,dz = colorToDepth(ds, cs, dframe, (crop[1] + c[0], crop[0] + c[1])) #IMPORTANT - offset corner coordinates by crop bounds since depth frame is full res
+        if dz == 0: #invalid point, out of range in depth map, so ignore
+            continue
         verts.append(np.array(openni2.convert_depth_to_world(ds, dx, dy, dz)))
 
-    #draw onto UI to show found corners, and label coordinates
-    for idx in range(len(corners)):
-        cv2.circle(img, corners[idx], 4, (255,0,0), 2)
-        #cv2.putText(img, str(verts[idx].astype(int)), (corners[idx][0]-10,corners[idx][1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (0,0,255), 1, cv2.LINE_AA)
+        #UI stuff
+        cv2.circle(img, c, 4, (255,0,0), 2)
+        #ended up being too small a region for overlaid coordinate text to be visible, so nevermind this feature
+        #cv2.putText(img, str(verts[-1].astype(int)), (c[0]-10,c[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,0), 1, cv2.LINE_AA)
 
     #draw lines between verts
     for i in range(len(corners)):
         for j in range(i+1):
             cv2.line(img, pr[i][0], pr[j][0], (0,255,0), 1)
 
-    #plt.cla()
-    #ax.scatter([v[0] for v in verts], [v[1] for v in verts], [v[2] for v in verts])
-    #plt.draw()
+    if len(verts) < 3: #skip if there aren't enough points to define the plane
+        continue
 
-    #get origin (centroid)
-    #o = np.array([np.mean([el[0] for el in verts]), np.mean([el[1] for el in verts]), np.mean([el[1] for el in verts])])
-
-    svds = np.array([[]] * len(verts)) #sampled vertex descriptors (angles of each radiating line relative to previous)
+    svds = [None] * len(verts) #sampled vertex descriptors (angles of each radiating line relative to previous)
     norm = np.cross(verts[1]-verts[0], verts[2]-verts[0]) #arbitrary normal vector for signed angle reference
     for i in range(len(verts)): #for each vertex/origin point
-        absangs = np.array([angBtwn(verts[0]-verts[i], pt-verts[i], norm) for pt in verts if not np.array_equal(verts[i], pt)]) #absolute angles relative to pts[0]-pts[i] (vector from current vert to first corner)
-        absangs.sort() #order the angles, starting with 0 and going CCW
-        svds[i] = [(absangs[idx]-absangs[idx-1])%(np.pi*2) for idx in range(len(absangs))] #relative to each other
-        svds[i] = svds[i][np.argmin(svds[i]):] + svds[i][:np.argmin(svds[i])] #"rotate" so that smallest value is first (not to be confused with sorting, order is same but different one first)
+        ref = verts[i-1]-verts[i] #vector from current vert to previous one, really just arbitrary reference
+        absangs = [angBtwn(ref, pt-verts[i], norm) for pt in verts if not np.array_equal(verts[i], pt)] #absolute angles relative to ref
+        absangs.sort() #order the angles smallest to largest, starting with 0 and going CCW
+        svds[i] = np.array([(absangs[idx]-absangs[idx-1])%(np.pi*2) for idx in range(len(absangs))]) #relative to each other
 
-    print svds
+        #"rotate" so that smallest value is first (not to be confused with sorting, order is same but different one first)
+        #m = np.argmin(svds[i])
+        #if m != 0:
+        #    svds[i] = np.concatenate([svds[i][m:], svds[i][:m]], 0)
 
-    """
-    #STILL NEED TO IMPLEMENT
-    tverts = getTrainingData() #trained vertices
-    #-------------------------------------------
+    winners = []
+    for sname in shapes:
+        #make sure that trained descriptor has same number of vertices as what was sampled, or there will be errors
+        #sometimes a corner will glitch out because of noise, and this will handle that situation
+        if len(verts) != len(shapes[sname][0]):
+            continue
 
-    diffs = [[sqmag(a2-a1) for a1 in svds] for a2 in tverts] #get geometric length of error between training verts and sampled ones
-    combos = munk.compute(diffs)
+        #get geometric length of error between training verts and sampled ones
+        #the innermost list comprehension is for lining up the relative angles when determining their similarity - it gets the error at all alignments and takes the smallest
+        diffs = [[min([sqmag(rotate(a2,shift)-a1) for shift in range(len(a2))]) for a1 in svds] for a2 in shapes[sname][0]]
+        combos = munk.compute(diffs)
 
-    #if this is under a threshold, then the pattern is recognized
-    error = sum([diffs[row][col] for row,col in combos])
-    print error
-    """
+        #if this is under a threshold, then the pattern is recognized
+        error = sum([diffs[row][col] for row,col in combos])
+        print sname + ": " + str(error <= shapes[sname][1]) + ", error = " + str(error)
 
-    cv2.imshow('detector', img)
-    plt.pause(0.01)
+        if error < shapes[sname][1]:
+            winners.append(sname)
+
+    #make sure that any passed
+    if len(winners) > 0:
+        #if more than one fell beneath the threshold, take the one with the lowest error
+        best = winners[np.argmin([shapes[n][1] for n in winners])]
+        cv2.putText(img_orig, best, (crop[1],crop[0]-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+
+    #substitute back into original image
+    img_orig[crop[0]:crop[2],crop[1]:crop[3]] = img
+    cv2.rectangle(img_orig, (crop[1],crop[0]), (crop[3],crop[2]), (0,0,255), thickness=2) #highlight region of interest
+    cv2.imshow('detector', img_orig)
     code = cv2.waitKey(50) #use for delay to allow time for refresh, and see if a key was pressed to shift the frame
     if code == -1: #nothing
         pass
@@ -195,9 +216,16 @@ while 1:
         crop[3] += 2
         fheight = crop[2]-crop[0]
         fwidth = crop[3]-crop[1]
-    elif code == ord('s'): #save current frame
+    elif code == ord('s'): #save current frame position as default
         with open("def_window.txt", "w") as file:
             file.write(str(crop)[1:-1]) #trim off square brackets
+    elif code == ord('t'): #train a new shape with the current SVDs
+        #get a number to use in the filename that hasn't been used yet
+        num = 0
+        while os.path.isfile("shape" + str(num) + ".xml"):
+            num += 1
+        saveProfile(svds, "shape" + str(num) + ".xml")
+        print "Profile saved to: shape" + str(num) + ".xml"
 
 #OLD CRAP
 #im = cv2.imread("Images\\star.png")

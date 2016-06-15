@@ -1,0 +1,23 @@
+<!-- Shape profile for a rhombus -->
+<shape thresh="1">
+	<vert>
+        <angle>0.44625521</angle>
+        <angle>0.5164803</angle>
+        <angle>5.3204498</angle>
+    </vert>
+    <vert>
+        <angle>1.01598451</angle>
+        <angle>4.07176772</angle>
+        <angle>1.19543307</angle>
+    </vert>
+    <vert>
+        <angle>0.46172884</angle>
+        <angle>0.48375091</angle>
+        <angle>5.33770555</angle>
+    </vert>
+    <vert>
+        <angle>1.0005074</angle>
+        <angle>4.11996805</angle>
+        <angle>1.16270986</angle>
+    </vert>
+</shape>

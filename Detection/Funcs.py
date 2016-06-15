@@ -4,6 +4,7 @@ from primesense import openni2
 from matplotlib import pyplot as plt
 import sys
 from DepthFrames import DepthFrameSample
+import xmltodict
 
 #---------------------------------------------
 # All the utility math/image processing functions that are needed in the main one
@@ -80,9 +81,9 @@ def fitPlane(pts):
     return (x[0], x[1], x[2], np.mean([-np.dot(pt, x) for pt in pts]))
 
 """
-~done but not tested~
 Given pixel/distance coords from Kinect, figure out real world [x,y,z] coords
 pts is a numpy matrix of [x,y,z] col vectors for kinect x/y pixels and z distance
+I realized that there's a more accurate built-in function to do this after I had already finished this code, but here it is anyway
 """
 def rwCoordsFromKinect(pts):
     #constants in the equation
@@ -144,9 +145,6 @@ def hgToEuc(m):
 def hgToEuc3D(m):
     return [(m[0,i]/m[3,i], m[1,i]/m[3,i], m[2,i]/m[3,i]) for i in range(m.shape[1])]
 
-def hgToEuc3DArray(m):
-    return [(el[0]/el[3], el[1]/el[3], el[2]/el[3]) for el in m]
-
 """
 Skew-symmetric cross product
 """
@@ -157,7 +155,9 @@ def sscp(v):
 Gets counterclockwise angle between vectors (needs plane normal for signed angle)
 """
 def angBtwn(v1, v2, n):
-    a = np.arccos(np.dot(v1, v2)/(mag(v1)*mag(v2))) #sine and cosine of angle
+    c = np.dot(v1, v2)/(mag(v1)*mag(v2)) #sine and cosine of angle
+    c = max(min(c, 1), -1) #make sure it doesn't go out of range and cause NaN (sometimes small rounding errors cause this)
+    a = np.arccos(c)
     if np.dot(np.cross(v1,v2), n) < 0:
         a = 2*np.pi - a
     return a
@@ -192,3 +192,40 @@ def rigid_transform(A, B):
     t = -R*ctrA.T + ctrB.T
 
     return R, t
+
+"""
+"rotates" a 1D array to put the element at idx=shift first
+Doesn't change order
+"""
+def rotate(array, shift):
+    return np.concatenate([array[shift:], array[:shift]], 0)
+
+"""
+Loads a shape "profile" from a XML file.
+Returns a 2D array of vertex descriptors like the one found in, and the recommended threshold for the shape to be recognized
+Will throw exception if file not found
+"""
+def getTrainingData(name):
+    tvds = []
+    with open(name) as f:
+        doc = xmltodict.parse(f.read())
+        thresh = float(doc["shape"]["@thresh"])
+        for vert in doc["shape"]["vert"]:
+            angs = []
+            for ang in vert["angle"]:
+                angs.append(float(ang))
+            tvds.append(np.array(angs))
+    return tvds, thresh
+
+"""
+Writes a shape profile to an XML file, given a 2D array of vertex descriptors
+"""
+def saveProfile(vds, fname):
+    with open(fname, "w") as f:
+        f.write("<shape thresh=\"1\">\n") #no way of knowing threshold, just default to 1
+        for vert in vds:
+            f.write("    <vert>\n")
+            for angle in vert:
+                f.write("        <angle>" + str(angle) + "</angle>\n")
+            f.write("    </vert>\n")
+        f.write("</shape>")

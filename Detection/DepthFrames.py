@@ -7,6 +7,7 @@ Useful for smoothing, and ignoring out-of-range zero values
 class DepthFrameSample:
     def __init__(self, frames):
         self.frames = frames
+
     """
     Get the average value at the specified point
     """
@@ -15,6 +16,7 @@ class DepthFrameSample:
         if len(a) == 0: #check to make sure that all values weren't ignored
             return 0
         return int(np.median(a))
+
     """
     Same, but take median of points with border a around pixel
     """

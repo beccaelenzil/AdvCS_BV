@@ -1,0 +1,22 @@
+<shape thresh="1">
+    <vert>
+        <angle>1.05141887903</angle>
+        <angle>1.11279803811</angle>
+        <angle>4.11896839004</angle>
+    </vert>
+    <vert>
+        <angle>0.470634725978</angle>
+        <angle>0.491291289024</angle>
+        <angle>5.32125929218</angle>
+    </vert>
+    <vert>
+        <angle>1.09970337128</angle>
+        <angle>1.12818448237</angle>
+        <angle>4.05529745353</angle>
+    </vert>
+    <vert>
+        <angle>0.443002781344</angle>
+        <angle>5.35416257707</angle>
+        <angle>0.486019948763</angle>
+    </vert>
+</shape>
